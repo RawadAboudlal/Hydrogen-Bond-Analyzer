@@ -1,0 +1,10 @@
+atoms file = sim/thymineanneal.xyz
+atoms per molecule = 15 # 1 thymine = 15 atoms.
+from frame = 0
+to frame = 500
+max angle = 30.0
+max h-bond distance = 3.0
+# Maximum distance for two atoms to be bonded. When selecting 2 atoms, this will check if they are close enough to
+# be bonded together; an h-bond can only be formed when the two selected atoms are bonded.
+max bond distance = 1.6
+hbond types = [15-8, 14-8] [15-8, 14-9] [14-8, 14-8]
