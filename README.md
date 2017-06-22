@@ -1,2 +1,2 @@
 # Hydrogen-Bond-Analyzer
-Gives useful statistics relatins to hydrogen bonds in a system molecules.
+Gives useful statistics relating to hydrogen bonds in a simulated system molecules.
