@@ -16,7 +16,8 @@ import numpy as np
 # frames should be a dictionary.
 def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 	
-	electronegativeAtoms = re.compile("N|O|S|F")
+	hbondDonors = re.compile("N|O|S|F")
+	hbondAcceptors = re.compile("H|N")
 	
 	# Molecule Id (int): # h-bonds
 	totalHBondsCount = {}
@@ -54,7 +55,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 				centralAtom1 = centralMolecule.atoms[centralAtom1Index]
 				
 				# This should be an electronegative atom.
-				if not electronegativeAtoms.fullmatch(centralAtom1.element):
+				if not hbondDonors.fullmatch(centralAtom1.element):
 					continue
 				
 				# +1 so we don't try to match this atom with itself.
@@ -65,8 +66,8 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 					if centralAtom1 == centralAtom2:
 						continue
 					
-					# This should always be a hydrogen
-					if not centralAtom2.element == "H":
+					# This is the h-bond acceptor, needs empty orbital, N can do it too.
+					if not hbondAcceptors.fullmatch(centralAtom2.element):
 						continue
 					
 					# Can be bonded across cell boundary.
@@ -92,7 +93,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 						for otherAtom in otherMolecule.atoms:
 							
 							# This should be an electronegative atom that is being bonded to by the hydrogen.
-							if not electronegativeAtoms.fullmatch(otherAtom.element):
+							if not hbondDonors.fullmatch(otherAtom.element):
 								continue
 							
 							withinDistance, otherCentral2Diff, distanceOtherCentral2 = isWithinDistance(centralAtom2.position, otherAtom.position, maxHBondDistance)
@@ -254,7 +255,7 @@ def main():
 	except:
 		inputFileName = "res/input.txt"
 	
-	atomsFileName, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes = loader.loadInput(inputFileName)
+	atomsFileName, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName = loader.loadInput(inputFileName)
 	
 	startTime = time.time()
 	
@@ -274,11 +275,6 @@ def main():
 	result = analyzeFrames(frames, np.radians(maxAngle), maxHBondDistance, maxBondDistance)
 	
 	timeToCountHBonds = time.time() - startTime
-	
-	try:
-		outputFileName = sys.argv[2]
-	except:
-		outputFileName = "res/output.txt"
 	
 	outputResult(result, framesCount, outputFileName, maxHBondDistance, maxAngle, hbondTypes)
 	

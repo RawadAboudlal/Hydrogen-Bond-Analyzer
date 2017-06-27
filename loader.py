@@ -30,7 +30,9 @@ def loadAnimatedXyz(name, moleculeAtomCount, fromFrame=0, toFrame=-1):
 		
 		for line in xyzFile:
 			
-			atomCountMatch = re.match(atomCountRegex, line)
+			line = line.strip('\n')
+			
+			atomCountMatch = atomCountRegex.fullmatch(line)
 			
 			if atomCountMatch:
 				
@@ -50,7 +52,7 @@ def loadAnimatedXyz(name, moleculeAtomCount, fromFrame=0, toFrame=-1):
 					currentMolecule = molecule(0)
 				
 			
-			atomMatch = re.match(atomRegex, line)
+			atomMatch = atomRegex.fullmatch(line)
 			
 			if atomMatch:
 				
@@ -98,6 +100,7 @@ def loadInput(name):
 		maxHBondDistanceRegex = re.compile("max h-bond distance", re.IGNORECASE)
 		maxBondDistanceRegex = re.compile("max bond disntance", re.IGNORECASE)
 		hbondTypesRegex = re.compile("hbond types", re.IGNORECASE)
+		outputFileRegex = re.compile("output file", re.IGNORECASE)
 		
 		# .+? -> ? matches up to the FIRST closing square bracker ].
 		listRegex = re.compile("(?P<list>\[.+?\])")
@@ -111,6 +114,7 @@ def loadInput(name):
 		maxHBondDistance = 1
 		maxBondDistance = 1
 		hbondTypes = []
+		outputFileName = ""
 		
 		for line in inputFile:
 			
@@ -155,4 +159,7 @@ def loadInput(name):
 					hbondType = hbond_type(len(hbondTypes) + 1, bonds)
 					hbondTypes.append(hbondType)
 					
-		return atomsFile, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes
+			elif outputFileRegex.fullmatch(key):
+				outputFileName = value
+					
+		return atomsFile, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName
