@@ -98,7 +98,7 @@ def loadInput(name):
 		toFrameRegex = re.compile("to frame", re.IGNORECASE)
 		maxAngleRegex = re.compile("max angle", re.IGNORECASE)
 		maxHBondDistanceRegex = re.compile("max h-bond distance", re.IGNORECASE)
-		maxBondDistanceRegex = re.compile("max bond disntance", re.IGNORECASE)
+		maxBondDistanceRegex = re.compile("max bond distance", re.IGNORECASE)
 		hbondTypesRegex = re.compile("hbond types", re.IGNORECASE)
 		outputFileRegex = re.compile("output file", re.IGNORECASE)
 		
@@ -123,6 +123,7 @@ def loadInput(name):
 			
 			try:
 				
+				# Ignored comments at end of line if present.
 				tokens = line.partition("#")[0].split("=")
 				
 				key = tokens[0].strip()
@@ -158,7 +159,7 @@ def loadInput(name):
 					# Makes hbond_type identifiers 1-indexed.
 					hbondType = hbond_type(len(hbondTypes) + 1, bonds)
 					hbondTypes.append(hbondType)
-					
+				
 			elif outputFileRegex.fullmatch(key):
 				outputFileName = value
 					

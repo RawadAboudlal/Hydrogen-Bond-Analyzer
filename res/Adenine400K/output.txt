@@ -1,36 +1,24 @@
-Total frames: 10
+Total frames: 100
 Configuration:
 	Max Hydrogen Bond Distance = 3.0, Max Hydrogen Bond Angle = 30.0
 
 ---------- Average HBonds per Molecule ----------
-Molecule with id 0 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 1 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 2 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 3 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 4 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 5 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 6 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 7 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 8 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 9 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 10 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 11 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 12 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 13 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 14 has an average of 0.0 hydrogen bonds across the simulation.
-Molecule with id 15 has an average of 0.0 hydrogen bonds across the simulation.
-
----------- HBonds Chains ----------
-Frame 10:
-Frame 11:
-Frame 12:
-Frame 13:
-Frame 14:
-Frame 15:
-Frame 16:
-Frame 17:
-Frame 18:
-Frame 19:
+Molecule with id 0 has an average of 3.81 hydrogen bonds across the simulation.
+Molecule with id 1 has an average of 3.43 hydrogen bonds across the simulation.
+Molecule with id 2 has an average of 3.7 hydrogen bonds across the simulation.
+Molecule with id 3 has an average of 3.5 hydrogen bonds across the simulation.
+Molecule with id 4 has an average of 3.19 hydrogen bonds across the simulation.
+Molecule with id 5 has an average of 1.82 hydrogen bonds across the simulation.
+Molecule with id 6 has an average of 2.77 hydrogen bonds across the simulation.
+Molecule with id 7 has an average of 3.35 hydrogen bonds across the simulation.
+Molecule with id 8 has an average of 4.34 hydrogen bonds across the simulation.
+Molecule with id 9 has an average of 3.17 hydrogen bonds across the simulation.
+Molecule with id 10 has an average of 2.11 hydrogen bonds across the simulation.
+Molecule with id 11 has an average of 3.79 hydrogen bonds across the simulation.
+Molecule with id 12 has an average of 3.66 hydrogen bonds across the simulation.
+Molecule with id 13 has an average of 3.88 hydrogen bonds across the simulation.
+Molecule with id 14 has an average of 5.71 hydrogen bonds across the simulation.
+Molecule with id 15 has an average of 4.41 hydrogen bonds across the simulation.
 
 ---------- Total Number of HBonds ----------
 HBond Type 1 was found 0 time(s).

@@ -157,13 +157,12 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 			
 			outputFile.write("Molecule with id {} has an average of {} hydrogen bonds across the simulation.\n".format(molId, avgHBonds))
 		
-		outputFile.write("\n---------- HBonds Chains ----------\n")
-		
-		for frameIndex in hbondChains:
-			outputFile.write("Frame {}:\n".format(frameIndex))
-			for hbondChain in hbondChains[frameIndex]:
-				outputFile.write("\tMolecules in this Chain: {}\n".format(", ".join(str(molId) for molId in set(hbondChain))))
-				
+# 		outputFile.write("\n---------- HBonds Chains ----------\n")
+# 		
+# 		for frameIndex in hbondChains:
+# 			outputFile.write("Frame {}:\n".format(frameIndex))
+# 			for hbondChain in hbondChains[frameIndex]:
+# 				outputFile.write("\tMolecules in this Chain: {}\n".format(", ".join(str(molId) for molId in set(hbondChain))))
 		
 # 		outputFile.write("\n---------- HBonds of Each Molecule ----------\n")
 # 		
@@ -189,7 +188,7 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 				
 				bonds = moleculesToBonds[moleculePair]
 				
-				print("{} have {} bonds with each other.".format(moleculePair, len(bonds)))
+				#print("{} have {} bonds with each other.".format(moleculePair, len(bonds)))
 				
 				hbondTypeMatch = isHBondType(hbondTypes, bonds)
 				
@@ -253,7 +252,10 @@ def main():
 		# sys.argv[0] = script name.
 		inputFileName = sys.argv[1]
 	except:
-		inputFileName = "res/input.txt"
+		print("Not input file given.")
+		sys.exit(1)
+	
+	print("Using following input file:", inputFileName)
 	
 	atomsFileName, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName = loader.loadInput(inputFileName)
 	
