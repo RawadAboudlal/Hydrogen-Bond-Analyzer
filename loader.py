@@ -12,7 +12,7 @@ from molecule import hbond_type
 from molecule import molecule
 
 # Will load an xyz file representing an animation. Returns frames as a list; each frame contains a list of molecules.
-def loadAnimatedXyz(name, moleculeAtomCount, fromFrame=0, toFrame=-1):
+def loadAnimatedXyz(name, moleculeAtomCount, fromFrame, toFrame):
 	
 	with open(name) as xyzFile:
 		
@@ -39,7 +39,7 @@ def loadAnimatedXyz(name, moleculeAtomCount, fromFrame=0, toFrame=-1):
 				currentFrame += 1
 				
 				if currentFrame < fromFrame:
-					# +1 to include the comment line.
+					#														  + 1 to include the comment line.
 					skipLines(xyzFile, int(atomCountMatch.group("atomCount")) + 1)
 					# when toFrame = -1, go to end of file (don't skip any lines).
 				elif toFrame != -1 and currentFrame >= toFrame:
@@ -109,7 +109,7 @@ def loadInput(name):
 		atomsFile = ""
 		atomsPerMolecule = 1
 		fromFrame = 0
-		toFrame = 0
+		toFrame = -1
 		maxAngle = 0
 		maxHBondDistance = 1
 		maxBondDistance = 1

@@ -270,7 +270,7 @@ def main():
 	
 	framesCount = len(frames)
 	
-	print("Loaded {} frames in {minuteMessage}{} seconds.".format(framesCount, secondsToLoadFrames, minuteMessage=(str(minutesToLoadFrames) + " minutes and") if minutesToLoadFrames > 0 else ""))
+	print("Loaded {} frames in {minuteMessage}{} seconds.".format(framesCount, secondsToLoadFrames, minuteMessage=(str(minutesToLoadFrames) + " minutes and ") if minutesToLoadFrames > 0 else ""))
 	
 	startTime = time.time()
 	
