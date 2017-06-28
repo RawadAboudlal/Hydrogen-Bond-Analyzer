@@ -12,7 +12,7 @@ from molecule import hbond_type
 from molecule import molecule
 
 # Will load an xyz file representing an animation. Returns frames as a list; each frame contains a list of molecules.
-def loadAnimatedXyz(name, moleculeAtomCount, fromFrame=0, toFrame=-1):
+def loadAnimatedXyz(name, moleculeAtomCount, fromFrame, toFrame):
 	
 	with open(name) as xyzFile:
 		
@@ -30,14 +30,16 @@ def loadAnimatedXyz(name, moleculeAtomCount, fromFrame=0, toFrame=-1):
 		
 		for line in xyzFile:
 			
-			atomCountMatch = re.match(atomCountRegex, line)
+			line = line.strip('\n')
+			
+			atomCountMatch = atomCountRegex.fullmatch(line)
 			
 			if atomCountMatch:
 				
 				currentFrame += 1
 				
 				if currentFrame < fromFrame:
-					# +1 to include the comment line.
+					#														  + 1 to include the comment line.
 					skipLines(xyzFile, int(atomCountMatch.group("atomCount")) + 1)
 					# when toFrame = -1, go to end of file (don't skip any lines).
 				elif toFrame != -1 and currentFrame >= toFrame:
@@ -50,7 +52,7 @@ def loadAnimatedXyz(name, moleculeAtomCount, fromFrame=0, toFrame=-1):
 					currentMolecule = molecule(0)
 				
 			
-			atomMatch = re.match(atomRegex, line)
+			atomMatch = atomRegex.fullmatch(line)
 			
 			if atomMatch:
 				
@@ -96,8 +98,9 @@ def loadInput(name):
 		toFrameRegex = re.compile("to frame", re.IGNORECASE)
 		maxAngleRegex = re.compile("max angle", re.IGNORECASE)
 		maxHBondDistanceRegex = re.compile("max h-bond distance", re.IGNORECASE)
-		maxBondDistanceRegex = re.compile("max bond disntance", re.IGNORECASE)
+		maxBondDistanceRegex = re.compile("max bond distance", re.IGNORECASE)
 		hbondTypesRegex = re.compile("hbond types", re.IGNORECASE)
+		outputFileRegex = re.compile("output file", re.IGNORECASE)
 		
 		# .+? -> ? matches up to the FIRST closing square bracker ].
 		listRegex = re.compile("(?P<list>\[.+?\])")
@@ -106,11 +109,12 @@ def loadInput(name):
 		atomsFile = ""
 		atomsPerMolecule = 1
 		fromFrame = 0
-		toFrame = 0
+		toFrame = -1
 		maxAngle = 0
 		maxHBondDistance = 1
 		maxBondDistance = 1
 		hbondTypes = []
+		outputFileName = ""
 		
 		for line in inputFile:
 			
@@ -119,6 +123,7 @@ def loadInput(name):
 			
 			try:
 				
+				# Ignored comments at end of line if present.
 				tokens = line.partition("#")[0].split("=")
 				
 				key = tokens[0].strip()
@@ -154,5 +159,8 @@ def loadInput(name):
 					# Makes hbond_type identifiers 1-indexed.
 					hbondType = hbond_type(len(hbondTypes) + 1, bonds)
 					hbondTypes.append(hbondType)
+				
+			elif outputFileRegex.fullmatch(key):
+				outputFileName = value
 					
-		return atomsFile, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes
+		return atomsFile, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName
