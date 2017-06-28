@@ -85,19 +85,14 @@ class hbond_type:
 		
 		matches = 0
 		
-		for bond1 in self.bonds:
-			for bond2 in other.bonds:
-				if bond1 == bond2:
-					
-					matches += 1
-					
-					if matches >= numBonds:
-						return True
-					
-					# Prevents checking if a bond from this template matches multiple times (i.e. duplicated in the target.
-					break
+		for bond in other.bonds:
+			if bond in self.bonds:
+				matches += 1
+			else:
+				return False
 		
-		return False
+		return matches >= numBonds
+		
 	
 	def __repr__(self):
 		return "HBondType(Bonds: {})".format(self.bonds)

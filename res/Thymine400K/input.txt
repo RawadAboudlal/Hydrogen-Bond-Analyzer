@@ -8,5 +8,6 @@ max h-bond distance = 3.0
 # be bonded together; an h-bond can only be formed when the two selected atoms are bonded.
 max bond distance = 1.6
 # Need to be in order: hydrogen index comes first then other atom.
-hbond types = [15-8, 14-8] [15-8, 14-9] [14-8, 14-8]
+hbond types = [14-7, 13-7] [14-7, 13-8] [13-7, 13-7]
 output file = res/thymine400K/output.txt
+max intermolecule distance = 15

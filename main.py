@@ -14,7 +14,7 @@ import numpy as np
 
 
 # frames should be a dictionary.
-def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
+def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxIntermoleculeDistance):
 	
 	centralAtom1Regex = re.compile("N|O|S|F|C")
 	hbondDonors = re.compile("N|O|S|F")
@@ -41,6 +41,8 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 		
 		adjacencyMatrix = []
 		
+		hbondChains[frameIndex] = []
+		
 		# tuple (sorted, has exactly 2 mol id's): [bond objects]
 		bondsBetweenMolecules = {}
 		
@@ -52,45 +54,46 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 				# Each molecule starts with 0 h-bonds.
 				totalHBondsCount[centralMolecule.identifier] = 0
 			
-			for centralAtom1Index in range(len(centralMolecule.atoms)):
+			for otherMolecule in frame:
 				
-				centralAtom1 = centralMolecule.atoms[centralAtom1Index]
-				
-				# This should be an electronegative atom. EXCEPT for the case of nitrogen being the h-bond acceptor.
-				if not centralAtom1Regex.fullmatch(centralAtom1.element):
+				if centralMolecule == otherMolecule:
 					continue
 				
-				# +1 so we don't try to match this atom with itself.
-				for centralAtom2Index in range(len(centralMolecule.atoms)):
+				withinDistance, otherCentralMoleculeDifference, distanceOtherCentralMolecule = isWithinDistance(centralMolecule.position, otherMolecule.position, maxIntermoleculeDistance)
+				
+				if not withinDistance:
+					continue
+				
+				del otherCentralMoleculeDifference, distanceOtherCentralMolecule
+				
+				# Key used for the bonding between these two molecules.
+				bondKey = tuple(sorted((centralMolecule.identifier, otherMolecule.identifier)))
+				
+				# We need to incremenet h-bond count for both central and other molecule so this must be initialized.
+				if not otherMolecule.identifier in totalHBondsCount:
+					totalHBondsCount[otherMolecule.identifier] = 0
+				
+				for centralAtom1 in centralMolecule.atoms:
 					
-					centralAtom2 = centralMolecule.atoms[centralAtom2Index]
-					
-					if centralAtom1 == centralAtom2:
+					# This should be an electronegative atom. EXCEPT for the case of nitrogen being the h-bond acceptor.
+					if not centralAtom1Regex.fullmatch(centralAtom1.element):
 						continue
 					
-					# This is the h-bond acceptor, needs empty orbital, N can do it too.
-					if not hbondAcceptors.fullmatch(centralAtom2.element):
-						continue
-					
-					# Can be bonded across cell boundary.
-					withinDistance, central2Central1Diff, distanceCentral2Central1 = isWithinDistance(centralAtom1.position, centralAtom2.position, maxBondDistance)
-					
-					# Ensures highly electronegative atom and hydrogen are actually bonded.
-					if not withinDistance:
-						continue
-					
-					# +1 so we don't match molecule with itself.
-					for otherMolecule in frame:
+					for centralAtom2 in centralMolecule.atoms:
 						
-						if centralMolecule == otherMolecule:
+						if centralAtom1 == centralAtom2:
 							continue
 						
-						# Key used for the bonding between these two molecules.
-						bondKey = tuple(sorted((centralMolecule.identifier, otherMolecule.identifier)))
+						# This is the h-bond acceptor, needs empty orbital, N can do it too.
+						if not hbondAcceptors.fullmatch(centralAtom2.element):
+							continue
 						
-						# We need to incremenet h-bond count for both central and other molecule so this must be initialized.
-						if not otherMolecule.identifier in totalHBondsCount:
-							totalHBondsCount[otherMolecule.identifier] = 0
+						# Can be bonded across cell boundary.
+						withinDistance, central2Central1Diff, distanceCentral2Central1 = isWithinDistance(centralAtom1.position, centralAtom2.position, maxBondDistance)
+						
+						# Ensures highly electronegative atom and hydrogen are actually bonded.
+						if not withinDistance:
+							continue
 						
 						for otherAtom in otherMolecule.atoms:
 							
@@ -134,6 +137,8 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 							totalHBondsCount[centralMolecule.identifier] += 1
 							totalHBondsCount[otherMolecule.identifier] += 1
 							
+							#print("At frame: {}, Bond: ({}) {}-{} === {} ({})\n\tAs indices: {}-{} === {}".format(frameIndex, centralMolecule.identifier, centralAtom1.element, centralAtom2.element, otherAtom.element, otherMolecule.identifier, centralAtom1.identifier, centralAtom2.identifier, otherAtom.identifier))
+							
 		
 	return (totalHBondsCount, hbondChains, totalHBonds)
 
@@ -151,7 +156,7 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		
 		outputFile.write("\n---------- Average HBonds per Molecule ----------\n")
 		
-		for molId in totalHBondsCount:
+		for molId in sorted(totalHBondsCount):
 			
 			avgHBonds = totalHBondsCount[molId] / framesCount
 			
@@ -252,16 +257,16 @@ def main():
 		# sys.argv[0] = script name.
 		inputFileName = sys.argv[1]
 	except:
-		print("Not input file given.")
+		print("No input file given.")
 		sys.exit(1)
 	
 	print("Using following input file:", inputFileName)
 	
-	atomsFileName, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName = loader.loadInput(inputFileName)
+	atomsFileName, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName, maxIntermoleculeDistance = loader.loadInput(inputFileName)
 	
 	startTime = time.time()
 	
-	frames = loader.loadAnimatedXyz(atomsFileName, atomsPerMolecule, fromFrame=fromFrame, toFrame=toFrame)
+	frames = loader.loadAnimatedXyz(atomsFileName, atomsPerMolecule, fromFrame, toFrame)
 	
 	timeToLoadFrames = time.time() - startTime
 	
@@ -274,7 +279,7 @@ def main():
 	
 	startTime = time.time()
 	
-	result = analyzeFrames(frames, np.radians(maxAngle), maxHBondDistance, maxBondDistance)
+	result = analyzeFrames(frames, np.radians(maxAngle), maxHBondDistance, maxBondDistance, maxIntermoleculeDistance)
 	
 	timeToCountHBonds = time.time() - startTime
 	

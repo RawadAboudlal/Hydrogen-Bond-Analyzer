@@ -62,8 +62,8 @@ def loadAnimatedXyz(name, moleculeAtomCount, fromFrame, toFrame):
 				y = float(atomMatch.group("y"))
 				z = float(atomMatch.group("z"))
 				
-				# Makes atom identifier 1-indexed. Also assumes each atom has the same position in each molecule.
-				a = atom(element, len(currentMolecule.atoms) + 1, x, y, z);
+				# Makes atom identifier 0-indexed. Also assumes each atom has the same position in each molecule.
+				a = atom(element, len(currentMolecule.atoms), x, y, z);
 				
 				currentMolecule.atoms.append(a)
 				
@@ -101,6 +101,7 @@ def loadInput(name):
 		maxBondDistanceRegex = re.compile("max bond distance", re.IGNORECASE)
 		hbondTypesRegex = re.compile("hbond types", re.IGNORECASE)
 		outputFileRegex = re.compile("output file", re.IGNORECASE)
+		maxIntermoleculeDistanceRegex = re.compile("max intermolecule distance", re.IGNORECASE)
 		
 		# .+? -> ? matches up to the FIRST closing square bracker ].
 		listRegex = re.compile("(?P<list>\[.+?\])")
@@ -115,6 +116,7 @@ def loadInput(name):
 		maxBondDistance = 1
 		hbondTypes = []
 		outputFileName = ""
+		maxIntermoleculeDistance = 1
 		
 		for line in inputFile:
 			
@@ -162,5 +164,7 @@ def loadInput(name):
 				
 			elif outputFileRegex.fullmatch(key):
 				outputFileName = value
-					
-		return atomsFile, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName
+			elif maxIntermoleculeDistanceRegex.fullmatch(key):
+				maxIntermoleculeDistance = float(value)
+			
+		return atomsFile, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName, maxIntermoleculeDistance
