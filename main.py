@@ -16,6 +16,7 @@ import numpy as np
 # frames should be a dictionary.
 def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 	
+	centralAtom1Regex = re.compile("N|O|S|F|C")
 	hbondDonors = re.compile("N|O|S|F")
 	hbondAcceptors = re.compile("H|N")
 	
@@ -33,7 +34,8 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 		
 		frame = frames[frameIndex]
 		
-		hbondChains[frameIndex] = []
+		# Holds list of all the chains
+		chainsList = []
 		
 		molCount = len(frame)
 		
@@ -54,8 +56,8 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 				
 				centralAtom1 = centralMolecule.atoms[centralAtom1Index]
 				
-				# This should be an electronegative atom.
-				if not hbondDonors.fullmatch(centralAtom1.element):
+				# This should be an electronegative atom. EXCEPT for the case of nitrogen being the h-bond acceptor.
+				if not centralAtom1Regex.fullmatch(centralAtom1.element):
 					continue
 				
 				# +1 so we don't try to match this atom with itself.
@@ -109,10 +111,8 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 							
 							# H-bond is found here.
 							
-							# Order of atoms in bond is important; first one should always be the H.
+							# Order of atoms in bond is important; first one should always be the h-bond acceptor.
 							b = bond(centralAtom2.identifier, otherAtom.identifier, mol1 = centralMolecule, mol2 = otherMolecule)
-							
-							#for bondsList
 							
 							if not bondKey in bondsBetweenMolecules:
 								bondsBetweenMolecules[bondKey] = []
@@ -222,7 +222,7 @@ def isHBondType(hbondTypes, bondInMolecule):
 # Third is the distance of pos2 - pos1.
 def isWithinDistance(pos1, pos2, maxDistance, La=np.array([34.60467452, 0, 0]), Lb=np.array([17.30233726, 29.968527222, 0])):
 	
-	# This can instead be loaded from a CONFIG file.
+	# This can instead be loaded from input file.
 	#[34.60467452, 0, 0],
 	#[17.30233726, 29.968527222, 0],
 	#[0, 0, 100] # This is unused because we are only interested in neighbouring cells in the xy plane.
