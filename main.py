@@ -34,12 +34,9 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 		
 		frame = frames[frameIndex]
 		
-		# Holds list of all the chains
-		chainsList = []
+		#molCount = len(frame)
 		
-		molCount = len(frame)
-		
-		adjacencyMatrix = []
+		#adjacencyMatrix = []
 		
 		hbondChains = []
 		
@@ -129,18 +126,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							
 							bondsBetweenMolecules[bondKey].append(hbond)
 							
-							if hbondChains:
-								
-								for hbondChain in hbondChains:
-									for hbondInChain in hbondChain:
-										
-										if hbond.mol1 == hbondInChain.mol2 or hbond.mol2 == hbondInChain.mol1 or hbond.mol1 == hbondInChain.mol1 or hbond.mol2 == hbondInChain.mol2:
-											hbondChain.append(hbond)
-											break
-								
-							else:
-								# Make a new chain, with just the one hbond, if there are no chains present.
-								hbondChains.append([hbond])
+							computeChains(hbondChains, hbond)
 							
 							totalHBondsCount[centralMolecule.identifier] += 1
 							totalHBondsCount[otherMolecule.identifier] += 1
@@ -184,13 +170,27 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		outputFile.write("\n---------- HBond Chains ----------\n")
 		
 		for frameIndex in totalHBondChains:
+			
 			longestHBondChain = []
+			
 			for hbondChain in totalHBondChains[frameIndex]:
+				
 				if len(hbondChain) > len(longestHBondChain):
 					longestHBondChain = hbondChain
 			
-			if longestHBondChain:
-				outputFile.write("Longest hbond chain in frame {}: {}\n".format(frameIndex, longestHBondChain))
+			# TODO: This is temporary.
+			if longestHBondChain and len(longestHBondChain) > 3:
+				
+				idsInChain = []
+				
+				for hbond in longestHBondChain:
+					idsInChain.append(hbond.mol1.identifier)
+					idsInChain.append(hbond.mol2.identifier)
+				
+				uniqueIdsInChain = set(idsInChain)
+				
+				outputFile.write("Longest hbond chain in frame {}: {}\n".format(frameIndex, "-".join(str(molId) for molId in uniqueIdsInChain)))
+				
 		
 		totalHBondTypes = {}
 		
@@ -221,6 +221,25 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		
 		
 		outputFile.flush()
+	
+
+def computeChains(hbondChains, hbond):
+
+	if hbondChains:
+		
+		for hbondChain in hbondChains:
+			for hbondInChain in hbondChain:
+				
+				if hbondInChain.is_part_of(hbond.mol1) or hbondInChain.is_part_of(hbond.mol2):
+					hbondChain.append(hbond)
+					return
+			
+		
+		hbondChains.append([hbond])
+		
+	else:
+		# Make a new chain, with just the one hbond, if there are no chains present.
+		hbondChains.append([hbond])
 	
 
 # Checks to see if the bonds a molecule has, bondInMolecule, fit with any of the given types of hbonds, hbondTypes.

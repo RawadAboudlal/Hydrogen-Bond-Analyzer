@@ -54,6 +54,9 @@ class bond:
 		self.mol1 = mol1
 		self.mol2 = mol2
 	
+	def is_part_of(self, molecule):
+		return self.mol1.identifier == molecule.identifier or self.mol2.identifier == molecule.identifier
+	
 	def __eq__(self, other):
 		'''
 		Important Note: Assumes that the atoms are sorted such that atom1 is the H of the h-bond and atom2 is the
