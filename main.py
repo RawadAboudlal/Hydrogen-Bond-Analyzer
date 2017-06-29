@@ -24,7 +24,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 	totalHBondsCount = {}
 	
 	# Frame Index (int): list of molecules in longest chain.
-	hbondChains = {}
+	totalHBondChains = {}
 	
 	# All bonds, for each molecule, across all the frames.
 	totalHBonds = {}
@@ -41,7 +41,9 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 		
 		adjacencyMatrix = []
 		
-		hbondChains[frameIndex] = []
+		hbondChains = []
+		
+		totalHBondChains[frameIndex] = hbondChains
 		
 		# tuple (sorted, has exactly 2 mol id's): [bond objects]
 		bondsBetweenMolecules = {}
@@ -119,25 +121,26 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							
 							# H-bond is found here.
 							
-							# Order of atoms in bond is important; first one should always be the h-bond acceptor.
-							b = bond(centralAtom2.identifier, otherAtom.identifier, mol1 = centralMolecule, mol2 = otherMolecule)
+							# Order of atoms in bond is important; first one should always be the h-bond donor (usually hydrogen).
+							hbond = bond(centralAtom2.identifier, otherAtom.identifier, mol1 = centralMolecule, mol2 = otherMolecule)
 							
 							if not bondKey in bondsBetweenMolecules:
 								bondsBetweenMolecules[bondKey] = []
 							
-							bondsBetweenMolecules[bondKey].append(b)
+							bondsBetweenMolecules[bondKey].append(hbond)
 							
-							for hbondChain in hbondChains[frameIndex]:
+							if hbondChains:
 								
-								if centralMolecule.identifier in hbondChain:
-									hbondChain.append(otherMolecule.identifier)
-									break
-								elif otherMolecule.identifier in hbondChain:
-									hbondChain.append(centralMolecule.identifier)
-									break
+								for hbondChain in hbondChains:
+									for hbondInChain in hbondChain:
+										
+										if hbond.mol1 == hbondInChain.mol2 or hbond.mol2 == hbondInChain.mol1 or hbond.mol1 == hbondInChain.mol1 or hbond.mol2 == hbondInChain.mol2:
+											hbondChain.append(hbond)
+											break
 								
 							else:
-								hbondChains[frameIndex].append([centralMolecule.identifier, otherMolecule.identifier])
+								# Make a new chain, with just the one hbond, if there are no chains present.
+								hbondChains.append([hbond])
 							
 							totalHBondsCount[centralMolecule.identifier] += 1
 							totalHBondsCount[otherMolecule.identifier] += 1
@@ -145,7 +148,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							#print("At frame: {}, Bond: ({}) {}-{} === {} ({})\n\tAs indices: {}-{} === {}".format(frameIndex, centralMolecule.identifier, centralAtom1.element, centralAtom2.element, otherAtom.element, otherMolecule.identifier, centralAtom1.identifier, centralAtom2.identifier, otherAtom.identifier))
 							
 		
-	return (totalHBondsCount, hbondChains, totalHBonds)
+	return (totalHBondsCount, totalHBondChains, totalHBonds)
 
 def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbondTypes):
 	
@@ -156,7 +159,7 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		outputFile.write("Configuration:\n\tMax Hydrogen Bond Distance = {}, Max Hydrogen Bond Angle = {}\n".format(maxDistance, maxAngle))
 		
 		totalHBondsCount = result[0]
-		hbondChains = result[1]
+		totalHBondChains = result[1]
 		totalHBonds = result[2]
 		
 		outputFile.write("\n---------- Average HBonds per Molecule ----------\n")
@@ -166,13 +169,6 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 			avgHBonds = totalHBondsCount[molId] / framesCount
 			
 			outputFile.write("Molecule with id {} has an average of {} hydrogen bonds across the simulation.\n".format(molId, avgHBonds))
-		
-# 		outputFile.write("\n---------- HBonds Chains ----------\n")
-# 		
-# 		for frameIndex in hbondChains:
-# 			outputFile.write("Frame {}:\n".format(frameIndex))
-# 			for hbondChain in hbondChains[frameIndex]:
-# 				outputFile.write("\tMolecules in this Chain: {}\n".format(", ".join(str(molId) for molId in set(hbondChain))))
 		
 # 		outputFile.write("\n---------- HBonds of Each Molecule ----------\n")
 # 		
@@ -184,6 +180,17 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 # 			for molId in bondMolDict:
 # 				outputFile.write("\tMol with id {} has following bonds:\n".format(molId))
 # 				outputFile.write("{}\n".format("\n".join("\t\t" + str(bond) for bond in bondMolDict[molId])))
+		
+		outputFile.write("\n---------- HBond Chains ----------\n")
+		
+		for frameIndex in totalHBondChains:
+			longestHBondChain = []
+			for hbondChain in totalHBondChains[frameIndex]:
+				if len(hbondChain) > len(longestHBondChain):
+					longestHBondChain = hbondChain
+			
+			if longestHBondChain:
+				outputFile.write("Longest hbond chain in frame {}: {}\n".format(frameIndex, longestHBondChain))
 		
 		totalHBondTypes = {}
 		
