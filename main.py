@@ -101,16 +101,21 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							if not hbondDonors.fullmatch(otherAtom.element):
 								continue
 							
-							withinDistance, otherCentral2Diff, distanceOtherCentral2 = isWithinDistance(centralAtom2.position, otherAtom.position, maxHBondDistance)
+							# VMD seems to calculate distance between both electronegative atoms rather than the hydrogen and the other electronegative atom.
+							withinDistance, otherCentral1Diff, distanceOtherCentral1 = isWithinDistance(centralAtom1.position, otherAtom.position, maxHBondDistance)
 							
 							if not withinDistance:
 								continue
 							
-							cosAngle = np.dot(central2Central1Diff, otherCentral2Diff) / (distanceCentral2Central1 * distanceOtherCentral2)
+							#print("{} and {} are within distance w/ distance of: {}".format(centralAtom2, otherAtom, distanceOtherCentral2))
+							
+							cosAngle = np.dot(central2Central1Diff, otherCentral1Diff) / (distanceCentral2Central1 * distanceOtherCentral1)
 							angle = np.arccos(cosAngle)
 							
 							if angle > maxAngle:
 								continue
+							
+							#print("\t{} and {} are also within angle ({}) w/ angle of: {}".format(centralAtom2, otherAtom, maxAngle, angle))
 							
 							# H-bond is found here.
 							
@@ -243,6 +248,7 @@ def isWithinDistance(pos1, pos2, maxDistance, La=np.array([34.60467452, 0, 0]), 
 			distance = np.linalg.norm(difference)
 			
 			if distance <= maxDistance:
+				#if x != 0 or y != 0: print("this pos is next to other pos in cell: {}, {}".format(x, y))
 				return True, difference, distance
 			
 			pass
