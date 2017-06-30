@@ -9,7 +9,7 @@ import sys
 import time
 
 import loader
-from molecule import bond, hbond_type
+from molecule import Bond, HBondType
 import numpy as np
 
 
@@ -45,7 +45,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 		
 		totalHBondChains[frameIndex] = hbondChains
 		
-		# tuple (sorted, has exactly 2 mol id's): [bond objects]
+		# tuple (sorted, has exactly 2 mol id's): [Bond objects]
 		bondsBetweenMolecules = {}
 		
 		totalHBondsBetweenMolecules[frameIndex] = bondsBetweenMolecules
@@ -55,7 +55,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 		for centralMolecule in frame:
 			
 			if not (centralMolecule.identifier in totalHBondsCount):
-				# Each molecule starts with 0 h-bonds.
+				# Each Molecule starts with 0 h-bonds.
 				totalHBondsCount[centralMolecule.identifier] = 0
 			
 			for otherMolecule in frame:
@@ -73,13 +73,13 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 				# Key used for the bonding between these two molecules.
 				bondKey = tuple(sorted((centralMolecule.identifier, otherMolecule.identifier)))
 				
-				# We need to incremenet h-bond count for both central and other molecule so this must be initialized.
+				# We need to incremenet h-Bond count for both central and other Molecule so this must be initialized.
 				if not otherMolecule.identifier in totalHBondsCount:
 					totalHBondsCount[otherMolecule.identifier] = 0
 				
 				for centralAtom1 in centralMolecule.atoms:
 					
-					# This should be an electronegative atom. EXCEPT for the case of nitrogen being the h-bond acceptor.
+					# This should be an electronegative atom. EXCEPT for the case of nitrogen being the h-Bond acceptor.
 					if not centralAtom1Regex.fullmatch(centralAtom1.element):
 						continue
 					
@@ -88,7 +88,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 						if centralAtom1 == centralAtom2:
 							continue
 						
-						# This is the h-bond acceptor, needs empty orbital, N can do it too.
+						# This is the h-Bond acceptor, needs empty orbital, N can do it too.
 						if not hbondAcceptors.fullmatch(centralAtom2.element):
 							continue
 						
@@ -121,10 +121,10 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							
 							#print("\t{} and {} are also within angle ({}) w/ angle of: {}".format(centralAtom2, otherAtom, maxAngle, angle))
 							
-							# H-bond is found here.
+							# H-Bond is found here.
 							
-							# Order of atoms in bond is important; first one should always be the h-bond donor (usually hydrogen).
-							hbond = bond(centralAtom2.identifier, otherAtom.identifier, mol1 = centralMolecule, mol2 = otherMolecule)
+							# Order of atoms in Bond is important; first one should always be the h-Bond donor (usually hydrogen).
+							hbond = Bond(centralAtom2.identifier, otherAtom.identifier, mol1 = centralMolecule, mol2 = otherMolecule)
 							
 							if not bondKey in bondsBetweenMolecules:
 								bondsBetweenMolecules[bondKey] = []
@@ -176,7 +176,7 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 # 			
 # 			for molId in bondMolDict:
 # 				outputFile.write("\tMol with id {} has following bonds:\n".format(molId))
-# 				outputFile.write("{}\n".format("\n".join("\t\t" + str(bond) for bond in bondMolDict[molId])))
+# 				outputFile.write("{}\n".format("\n".join("\t\t" + str(Bond) for Bond in bondMolDict[molId])))
 		
 		outputFile.write("\n---------- HBond Chains ----------\n")
 		
@@ -287,10 +287,10 @@ def computeChains(hbondChains, hbond):
 		hbondChains.append([hbond])
 	
 
-# Checks to see if the bonds a molecule has, bondInMolecule, fit with any of the given types of hbonds, hbondTypes.
+# Checks to see if the bonds a Molecule has, bondInMolecule, fit with any of the given types of hbonds, hbondTypes.
 def isHBondType(hbondTypes, bondInMolecule):
 	
-	hbond = hbond_type(-1, bondInMolecule)
+	hbond = HBondType(-1, bondInMolecule)
 	
 	for hbondType in hbondTypes:
 		if hbondType.matches(hbond):
