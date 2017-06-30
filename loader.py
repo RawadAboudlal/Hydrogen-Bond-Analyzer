@@ -6,10 +6,11 @@ Created on May 30, 2017
 
 import re
 
-from molecule import atom
-from molecule import bond
-from molecule import hbond_type
-from molecule import molecule
+from molecule import Atom
+from molecule import Bond
+from molecule import HBondType
+from molecule import Molecule
+
 
 # Will load an xyz file representing an animation. Returns frames as a list; each frame contains a list of molecules.
 def loadAnimatedXyz(name, moleculeAtomCount, fromFrame, toFrame):
@@ -26,7 +27,7 @@ def loadAnimatedXyz(name, moleculeAtomCount, fromFrame, toFrame):
 		
 		frames = {}
 		
-		currentMolecule = molecule(0)
+		currentMolecule = Molecule(0)
 		
 		for line in xyzFile:
 			
@@ -48,8 +49,8 @@ def loadAnimatedXyz(name, moleculeAtomCount, fromFrame, toFrame):
 					
 					frames[currentFrame] = []
 					
-					# Note: this assumes each molecule has the same position in each frame of the file.
-					currentMolecule = molecule(0)
+					# Note: this assumes each Molecule has the same position in each frame of the file.
+					currentMolecule = Molecule(0)
 				
 			
 			atomMatch = atomRegex.fullmatch(line)
@@ -62,18 +63,18 @@ def loadAnimatedXyz(name, moleculeAtomCount, fromFrame, toFrame):
 				y = float(atomMatch.group("y"))
 				z = float(atomMatch.group("z"))
 				
-				# Makes atom identifier 0-indexed. Also assumes each atom has the same position in each molecule.
-				a = atom(element, len(currentMolecule.atoms), x, y, z);
+				# Makes Atom identifier 0-indexed. Also assumes each Atom has the same position in each Molecule.
+				a = Atom(element, len(currentMolecule.atoms), x, y, z);
 				
 				currentMolecule.atoms.append(a)
 				
 				if len(currentMolecule.atoms) >= moleculeAtomCount:
 					
-					# Calculates approximate center-of-mass of molecule once it is fully loaded.
+					# Calculates approximate center-of-mass of Molecule once it is fully loaded.
 					currentMolecule.calculateCenter()
 					
 					frames[currentFrame].append(currentMolecule)
-					currentMolecule = molecule(len(frames[currentFrame]))
+					currentMolecule = Molecule(len(frames[currentFrame]))
 				
 		return frames
 	
@@ -93,12 +94,12 @@ def loadInput(name):
 	with open(name) as inputFile:
 		
 		atomsFileRegex = re.compile("atoms file", re.IGNORECASE)
-		atomsPerMoleculeRegex = re.compile("atoms per molecule", re.IGNORECASE)
+		atomsPerMoleculeRegex = re.compile("atoms per Molecule", re.IGNORECASE)
 		fromFrameRegex = re.compile("from frame", re.IGNORECASE)
 		toFrameRegex = re.compile("to frame", re.IGNORECASE)
 		maxAngleRegex = re.compile("max angle", re.IGNORECASE)
-		maxHBondDistanceRegex = re.compile("max h-bond distance", re.IGNORECASE)
-		maxBondDistanceRegex = re.compile("max bond distance", re.IGNORECASE)
+		maxHBondDistanceRegex = re.compile("max h-Bond distance", re.IGNORECASE)
+		maxBondDistanceRegex = re.compile("max Bond distance", re.IGNORECASE)
 		hbondTypesRegex = re.compile("hbond types", re.IGNORECASE)
 		outputFileRegex = re.compile("output file", re.IGNORECASE)
 		maxIntermoleculeDistanceRegex = re.compile("max intermolecule distance", re.IGNORECASE)
@@ -156,10 +157,10 @@ def loadInput(name):
 					bonds = []
 					
 					for bondMatch in bondRegex.finditer(lstMatch.group("list")):
-						bonds.append(bond(int(bondMatch.group("atom1")), int(bondMatch.group("atom2"))))
+						bonds.append(Bond(int(bondMatch.group("atom1")), int(bondMatch.group("atom2"))))
 					
-					# Makes hbond_type identifiers 1-indexed.
-					hbondType = hbond_type(len(hbondTypes) + 1, bonds)
+					# Makes HBondType identifiers 1-indexed.
+					hbondType = HBondType(len(hbondTypes) + 1, bonds)
 					hbondTypes.append(hbondType)
 				
 			elif outputFileRegex.fullmatch(key):
