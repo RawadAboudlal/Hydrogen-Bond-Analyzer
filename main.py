@@ -203,6 +203,54 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 				outputFile.write("Longest hbond chain in frame {}: {}\n".format(frameIndex, "-".join(str(molId) for molId in uniqueIdsInChain)))
 				
 		
+		outputFile.write("\n---------- HBond Loops ----------\n")
+		
+		for frameIndex in totalHBondChains:
+			
+			hbondChains = totalHBondChains[frameIndex]
+			
+			molIds = []
+			
+			for hbondChain in hbondChains:
+				for hbond in hbondChain:
+					
+					mol1Id = hbond.mol1.identifier
+					mol2Id = hbond.mol2.identifier
+					
+					if not mol1Id in molIds:
+						molIds.append(mol1Id)
+					
+					if not mol2Id in molIds:
+						molIds.append(mol2Id)
+			
+			adjacencyMatrix = []
+			
+			for i in range(len(molIds)):
+				adjacencyMatrix.append([])
+				for j in range(len(molIds)):
+					adjacencyMatrix[i].append(0)
+					j = j
+			
+			for firstMolIdIndex in range(len(molIds)):
+				
+				firstMolId = molIds[firstMolIdIndex]
+				adjacencyRow = adjacencyMatrix[firstMolIdIndex]
+				
+				for secondMolIdIndex in range(len(molIds)):
+					
+					if firstMolIdIndex == secondMolIdIndex:
+						continue
+					
+					secondMolId = molIds[secondMolIdIndex]
+					
+					for hbond in hbondChain:
+						if sorted((firstMolId, secondMolId)) == sorted((hbond.mol1.identifier, hbond.mol2.identifier)):
+							adjacencyRow[secondMolIdIndex] = 1
+					
+			if isSymmetric(np.array(adjacencyMatrix)):
+				outputFile.write("At frame {} there is a loop formed from this chain: {}".format(frameIndex, ",".join(str(hbond) for hbond in hbondChain)))
+			
+		
 		totalHBondTypes = {}
 		
 		for hbondType in hbondTypes:
@@ -259,6 +307,9 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		
 		outputFile.flush()
 	
+
+def isSymmetric(matrix, tolerance=1e-8):
+	return np.allclose(matrix, matrix.T, atol=tolerance)
 
 def isExactHBondPresent(hbondToCheck, hbondChain):
 	
