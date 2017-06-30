@@ -26,7 +26,10 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 	# Frame Index (int): list of molecules in longest chain.
 	totalHBondChains = {}
 	
-	# All bonds, for each molecule, across all the frames.
+	# All h-bonds based on which 2 molecules they connect.
+	totalHBondsBetweenMolecules = {}
+	
+	# All h-bonds across all the frames.
 	totalHBonds = {}
 	
 	# frames is a dictionary so we loop through keys this way. key = index of frame; don't have to be in order.
@@ -45,7 +48,9 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 		# tuple (sorted, has exactly 2 mol id's): [bond objects]
 		bondsBetweenMolecules = {}
 		
-		totalHBonds[frameIndex] = bondsBetweenMolecules
+		totalHBondsBetweenMolecules[frameIndex] = bondsBetweenMolecules
+		
+		totalHBonds[frameIndex] = []
 		
 		for centralMolecule in frame:
 			
@@ -131,22 +136,28 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							totalHBondsCount[centralMolecule.identifier] += 1
 							totalHBondsCount[otherMolecule.identifier] += 1
 							
+							totalHBonds[frameIndex].append(hbond)
+							
 							#print("At frame: {}, Bond: ({}) {}-{} === {} ({})\n\tAs indices: {}-{} === {}".format(frameIndex, centralMolecule.identifier, centralAtom1.element, centralAtom2.element, otherAtom.element, otherMolecule.identifier, centralAtom1.identifier, centralAtom2.identifier, otherAtom.identifier))
 							
 		
-	return (totalHBondsCount, totalHBondChains, totalHBonds)
+	return (totalHBondsCount, totalHBondChains, totalHBondsBetweenMolecules, totalHBonds)
 
-def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbondTypes):
+def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbondTypes, fromFrame, toFrame):
 	
 	with open(outputFileName, "w") as outputFile:
 		
-		outputFile.write("Total frames: {}\n".format(framesCount))
+		if toFrame == -1:
+			toFrame = fromFrame + framesCount
+		
+		outputFile.write("From frame {} to frame (exclusive) {} (Total = {})\n".format(fromFrame, toFrame, framesCount))
 		
 		outputFile.write("Configuration:\n\tMax Hydrogen Bond Distance = {}, Max Hydrogen Bond Angle = {}\n".format(maxDistance, maxAngle))
 		
 		totalHBondsCount = result[0]
 		totalHBondChains = result[1]
-		totalHBonds = result[2]
+		totalHBondsBetweenMolecules = result[2]
+		totalHBonds = result[3]
 		
 		outputFile.write("\n---------- Average HBonds per Molecule ----------\n")
 		
@@ -197,9 +208,9 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		for hbondType in hbondTypes:
 			totalHBondTypes[hbondType.identifier] = 0
 		
-		for frameIndex in totalHBonds:
+		for frameIndex in totalHBondsBetweenMolecules:
 			
-			moleculesToBonds = totalHBonds[frameIndex]
+			moleculesToBonds = totalHBondsBetweenMolecules[frameIndex]
 			
 			for moleculePair in moleculesToBonds:
 				
@@ -212,16 +223,50 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 				if not hbondTypeMatch == None:
 					#print("Found hbond with type {} and mol id {}".format(hbondTypeMatch.identifier, molId))
 					totalHBondTypes[hbondTypeMatch.identifier] += 1
-				
 		
 		outputFile.write("\n---------- Total Number of HBonds ----------\n")
 		
 		for hbondType in totalHBondTypes:
 			outputFile.write("HBond Type {} was found {} time(s).\n".format(hbondType, totalHBondTypes[hbondType]))
 		
+		S_HB = {}
+		
+		initialHBondsList = totalHBonds[fromFrame]
+		
+		initialHBonds = {i: initialHBondsList[i] for i in range(len(initialHBondsList))}
+		
+		for initialHBondIndex in initialHBonds:
+			S_HB[initialHBondIndex] = 1
+		
+		for frameIndex in range(fromFrame + 1, toFrame):
+			
+			currentHBonds = totalHBonds[frameIndex]
+			
+			# Use new list made from keys to avoid "dictionary changed size during iteration" error.
+			for hbondIndex in list(initialHBonds):
+				
+				hbond = initialHBonds[hbondIndex]
+				
+				if not isExactHBondPresent(hbond, currentHBonds):
+					S_HB[hbondIndex] = 0
+					del initialHBonds[hbondIndex]
+		
+		outputFile.write("\n---------- Continuous Hydrogen Bond Time Correlation Function ----------\n")
+		outputFile.write("From frame {} to frame {}\n".format(fromFrame, toFrame))
+		
+		for hbondIndex in S_HB:
+			outputFile.write("HBond {}: {}, S_HB: {}\n".format(hbondIndex, initialHBondsList[hbondIndex], S_HB[hbondIndex]))
 		
 		outputFile.flush()
 	
+
+def isExactHBondPresent(hbondToCheck, hbondChain):
+	
+	for hbond in hbondChain:
+		if hbondToCheck.deep_equal(hbond):
+			return True
+	
+	return False
 
 def computeChains(hbondChains, hbond):
 
@@ -315,7 +360,7 @@ def main():
 	
 	timeToCountHBonds = time.time() - startTime
 	
-	outputResult(result, framesCount, outputFileName, maxHBondDistance, maxAngle, hbondTypes)
+	outputResult(result, framesCount, outputFileName, maxHBondDistance, maxAngle, hbondTypes, fromFrame, toFrame)
 	
 	minutesToCountHBonds = timeToCountHBonds // 60
 	secondsToCountHBonds = timeToCountHBonds % 60

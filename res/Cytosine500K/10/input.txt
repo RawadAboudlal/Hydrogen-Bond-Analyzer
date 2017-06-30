@@ -1,7 +1,7 @@
 atoms file = sim/Cytosine500K/10/10cytosine500K.xyz
 atoms per molecule = 13
-from frame = 2000
-to frame = 2001
+from frame = 10
+to frame = 16
 max angle = 20.0
 max h-bond distance = 3.0
 # Maximum distance for two atoms to be bonded. When selecting 2 atoms, this will check if they are close enough to
