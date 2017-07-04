@@ -17,7 +17,7 @@ import numpy as np
 # frames should be a dictionary.
 def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxIntermoleculeDistance):
 	
-	centralAtom1Regex = re.compile("N|O|S|F|C")
+	centralAtom1Regex = re.compile("N|O|S|F")# "N|O|S|F|C". Keep this way for now.
 	hbondDonors = re.compile("N|O|S|F")
 	hbondAcceptors = re.compile("H|N")
 	
@@ -37,10 +37,6 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 	for frameIndex in frames:
 		
 		frame = frames[frameIndex]
-		
-		#molCount = len(frame)
-		
-		#adjacencyMatrix = []
 		
 		hbondChains = []
 		
@@ -337,7 +333,6 @@ def isWithinDistance(pos1, pos2, maxDistance, La=np.array([34.60467452, 0, 0]), 
 			distance = np.linalg.norm(difference)
 			
 			if distance <= maxDistance:
-				#if x != 0 or y != 0: print("this pos is next to other pos in cell: {}, {}".format(x, y))
 				return True, difference, distance
 			
 			pass
