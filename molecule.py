@@ -54,11 +54,11 @@ class Bond:
 		self.mol1 = mol1
 		self.mol2 = mol2
 	
-	def is_part_of(self, Molecule):
+	def is_part_of(self, molecule):
 		'''
-		Returns True if Molecule is the same as one of the molecules (mol1 or mol1) that make up this Bond.
+		Returns True if molecule is the same as one of the molecules (mol1 or mol1) that make up this Bond.
 		'''
-		return self.mol1.identifier == Molecule.identifier or self.mol2.identifier == Molecule.identifier
+		return self.mol1.identifier == molecule.identifier or self.mol2.identifier == molecule.identifier
 	
 	def deep_equal(self, other):
 		'''

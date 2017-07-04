@@ -1,15 +1,29 @@
-Total frames: 1
+From frame 265 to frame (exclusive) 266 (Total = 1)
 Configuration:
 	Max Hydrogen Bond Distance = 3.0, Max Hydrogen Bond Angle = 30.0
 
 ---------- Average HBonds per Molecule ----------
-Molecule with id 0 has an average of 1.0 hydrogen bonds across the simulation.
-Molecule with id 1 has an average of 1.0 hydrogen bonds across the simulation.
-Molecule with id 2 has an average of 1.0 hydrogen bonds across the simulation.
-Molecule with id 3 has an average of 1.0 hydrogen bonds across the simulation.
-Molecule with id 4 has an average of 0.0 hydrogen bonds across the simulation.
+Molecule with id 0 has an average of 2.0 hydrogen bonds across the simulation.
+Molecule with id 1 has an average of 3.0 hydrogen bonds across the simulation.
+Molecule with id 2 has an average of 4.0 hydrogen bonds across the simulation.
+Molecule with id 3 has an average of 2.0 hydrogen bonds across the simulation.
+Molecule with id 4 has an average of 1.0 hydrogen bonds across the simulation.
+
+---------- HBond Chains ----------
+Longest hbond chain in frame 265: 0-1-2-3-4
+
+---------- HBond Loops ----------
 
 ---------- Total Number of HBonds ----------
 HBond Type 1 was found 0 time(s).
-HBond Type 2 was found 0 time(s).
+HBond Type 2 was found 1 time(s).
 HBond Type 3 was found 0 time(s).
+
+---------- Continuous Hydrogen Bond Time Correlation Function ----------
+From frame 265 to frame 266
+HBond 0: Bond(Id 1: 13, Id 2: 7), S_HB: 1
+HBond 1: Bond(Id 1: 13, Id 2: 8), S_HB: 1
+HBond 2: Bond(Id 1: 14, Id 2: 7), S_HB: 1
+HBond 3: Bond(Id 1: 13, Id 2: 8), S_HB: 1
+HBond 4: Bond(Id 1: 14, Id 2: 7), S_HB: 1
+HBond 5: Bond(Id 1: 14, Id 2: 8), S_HB: 1

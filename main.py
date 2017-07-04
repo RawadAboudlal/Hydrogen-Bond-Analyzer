@@ -293,12 +293,9 @@ def computeChains(hbondChains, hbond):
 					hbondChain.append(hbond)
 					return
 			
-		
-		hbondChains.append([hbond])
-		
-	else:
-		# Make a new chain, with just the one hbond, if there are no chains present.
-		hbondChains.append([hbond])
+	
+	# Make a new chain, with just the one hbond, if there are no chains present or this hbond isn't part of any chain.
+	hbondChains.append([hbond])
 	
 
 # Checks to see if the bonds a Molecule has, bondInMolecule, fit with any of the given types of hbonds, hbondTypes.
