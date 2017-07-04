@@ -102,7 +102,7 @@ def loadInput(name):
 		maxBondDistanceRegex = re.compile("max Bond distance", re.IGNORECASE)
 		hbondTypesRegex = re.compile("hbond types", re.IGNORECASE)
 		outputFileRegex = re.compile("output file", re.IGNORECASE)
-		maxIntermoleculeDistanceRegex = re.compile("max intermolecule distance", re.IGNORECASE)
+		maxIntermoleculeDistanceRegex = re.compile("max intermolecule distance", re.IGNORECASE
 		
 		# .+? -> ? matches up to the FIRST closing square bracker ].
 		listRegex = re.compile("(?P<list>\[.+?\])")
@@ -169,3 +169,4 @@ def loadInput(name):
 				maxIntermoleculeDistance = float(value)
 			
 		return atomsFile, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName, maxIntermoleculeDistance
+
