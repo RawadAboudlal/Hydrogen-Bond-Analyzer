@@ -9,6 +9,7 @@ import sys
 import time
 
 import loader
+import loop
 from molecule import Bond, HBondType
 import numpy as np
 
@@ -209,46 +210,12 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 			
 			hbondChains = totalHBondChains[frameIndex]
 			
-			molIds = []
-			
 			for hbondChain in hbondChains:
-				for hbond in hbondChain:
-					
-					mol1Id = hbond.mol1.identifier
-					mol2Id = hbond.mol2.identifier
-					
-					if not mol1Id in molIds:
-						molIds.append(mol1Id)
-					
-					if not mol2Id in molIds:
-						molIds.append(mol2Id)
-			
-			adjacencyMatrix = []
-			
-			for i in range(len(molIds)):
-				adjacencyMatrix.append([])
-				for j in range(len(molIds)):
-					adjacencyMatrix[i].append(0)
-					j = j
-			
-			for firstMolIdIndex in range(len(molIds)):
 				
-				firstMolId = molIds[firstMolIdIndex]
-				adjacencyRow = adjacencyMatrix[firstMolIdIndex]
+				graph = loop.createGraphFromHBonds(hbondChain)
 				
-				for secondMolIdIndex in range(len(molIds)):
-					
-					if firstMolIdIndex == secondMolIdIndex:
-						continue
-					
-					secondMolId = molIds[secondMolIdIndex]
-					
-					for hbond in hbondChain:
-						if sorted((firstMolId, secondMolId)) == sorted((hbond.mol1.identifier, hbond.mol2.identifier)):
-							adjacencyRow[secondMolIdIndex] = 1
-					
-			if isSymmetric(np.array(adjacencyMatrix)):
-				outputFile.write("At frame {} there is a loop formed from this chain: {}".format(frameIndex, ",".join(str(hbond) for hbond in hbondChain)))
+				if graph.isCyclic():
+					outputFile.write("There is a loop found at frame {} in the following chain: {}\n".format(frameIndex, hbondChain))
 			
 		
 		totalHBondTypes = {}
