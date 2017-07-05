@@ -9,7 +9,7 @@ import sys
 import time
 
 import loader
-import loop
+from loop import Graph
 from molecule import Bond, HBondType
 import numpy as np
 
@@ -24,8 +24,8 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 	# Molecule Id (int): # h-bonds
 	totalHBondsCount = {}
 	
-	# Frame Index (int): list of molecules in longest chain.
-	totalHBondChains = {}
+	# Frame index (int): Graph
+	hbondGraphs = {}
 	
 	# All h-bonds based on which 2 molecules they connect.
 	totalHBondsBetweenMolecules = {}
@@ -38,9 +38,9 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 		
 		frame = frames[frameIndex]
 		
-		hbondChains = []
+		graph = Graph()
 		
-		totalHBondChains[frameIndex] = hbondChains
+		hbondGraphs[frameIndex] = graph
 		
 		# tuple (sorted, has exactly 2 mol id's): [Bond objects]
 		bondsBetweenMolecules = {}
@@ -127,7 +127,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							
 							bondsBetweenMolecules[bondKey].append(hbond)
 							
-							computeChains(hbondChains, hbond)
+							graph.addGroup(hbond.mol1.identifier, hbond.mol2.identifier)
 							
 							totalHBondsCount[centralMolecule.identifier] += 1
 							totalHBondsCount[otherMolecule.identifier] += 1
@@ -137,7 +137,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							#print("At frame: {}, Bond: ({}) {}-{} === {} ({})\n\tAs indices: {}-{} === {}".format(frameIndex, centralMolecule.identifier, centralAtom1.element, centralAtom2.element, otherAtom.element, otherMolecule.identifier, centralAtom1.identifier, centralAtom2.identifier, otherAtom.identifier))
 							
 		
-	return (totalHBondsCount, totalHBondChains, totalHBondsBetweenMolecules, totalHBonds)
+	return (totalHBondsCount, hbondGraphs, totalHBondsBetweenMolecules, totalHBonds)
 
 def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbondTypes, fromFrame, toFrame):
 	
@@ -151,7 +151,7 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		outputFile.write("Configuration:\n\tMax Hydrogen Bond Distance = {}, Max Hydrogen Bond Angle = {}\n".format(maxDistance, maxAngle))
 		
 		totalHBondsCount = result[0]
-		totalHBondChains = result[1]
+		hbondGraphs = result[1]
 		totalHBondsBetweenMolecules = result[2]
 		totalHBonds = result[3]
 		
@@ -174,44 +174,37 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 # 				outputFile.write("\tMol with id {} has following bonds:\n".format(molId))
 # 				outputFile.write("{}\n".format("\n".join("\t\t" + str(Bond) for Bond in bondMolDict[molId])))
 		
+		connectedHBondComponents = {}
+		
+		for frameIndex in hbondGraphs:
+			connectedHBondComponents[frameIndex] = hbondGraphs[frameIndex].getConnectedComponents()
+		
 		outputFile.write("\n---------- HBond Chains ----------\n")
 		
-		for frameIndex in totalHBondChains:
+		for frameIndex in connectedHBondComponents:
 			
 			longestHBondChain = []
 			
-			for hbondChain in totalHBondChains[frameIndex]:
+			for hbondChain in connectedHBondComponents[frameIndex]:
 				
 				if len(hbondChain) > len(longestHBondChain):
 					longestHBondChain = hbondChain
 			
-			# TODO: This is temporary.
+			# TODO: Length requirement is temporary.
 			if longestHBondChain and len(longestHBondChain) > 3:
 				
-				idsInChain = []
-				
-				for hbond in longestHBondChain:
-					idsInChain.append(hbond.mol1.identifier)
-					idsInChain.append(hbond.mol2.identifier)
-				
-				
-				uniqueIdsInChain = set(idsInChain)
-				
-				outputFile.write("Longest hbond chain in frame {}: {}\n".format(frameIndex, "-".join(str(molId) for molId in uniqueIdsInChain)))
+				outputFile.write("Longest hbond chain in frame {}: {}\n".format(frameIndex, "-".join(str(molId) for molId in longestHBondChain.graph)))
 				
 		
 		outputFile.write("\n---------- HBond Loops ----------\n")
 		
-		for frameIndex in totalHBondChains:
+		for frameIndex in connectedHBondComponents:
 			
-			hbondChains = totalHBondChains[frameIndex]
+			hbondChains = connectedHBondComponents[frameIndex]
 			
 			for hbondChain in hbondChains:
-				
-				graph = loop.createGraphFromHBonds(hbondChain)
-				
-				if graph.isCyclic():
-					outputFile.write("There is a loop found at frame {} in the following chain: {}\n".format(frameIndex, hbondChain))
+				if hbondChain.isCyclic():
+					outputFile.write("There is a loop found at frame {} in the following chain: {}\n".format(frameIndex, hbondChain.graph.keys()))
 			
 		
 		totalHBondTypes = {}
@@ -277,22 +270,6 @@ def isExactHBondPresent(hbondToCheck, hbondChain):
 			return True
 	
 	return False
-
-def computeChains(hbondChains, hbond):
-
-	if hbondChains:
-		
-		for hbondChain in hbondChains:
-			for hbondInChain in hbondChain:
-				
-				if hbondInChain.is_part_of(hbond.mol1) or hbondInChain.is_part_of(hbond.mol2):
-					hbondChain.append(hbond)
-					return
-			
-	
-	# Make a new chain, with just the one hbond, if there are no chains present or this hbond isn't part of any chain.
-	hbondChains.append([hbond])
-	
 
 # Checks to see if the bonds a Molecule has, bondInMolecule, fit with any of the given types of hbonds, hbondTypes.
 def isHBondType(hbondTypes, bondInMolecule):

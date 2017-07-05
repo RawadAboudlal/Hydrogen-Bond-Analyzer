@@ -15,7 +15,7 @@ Molecule with id 8 has an average of 3.0 hydrogen bonds across the simulation.
 Molecule with id 9 has an average of 2.0 hydrogen bonds across the simulation.
 
 ---------- HBond Chains ----------
-Longest hbond chain in frame 587: 0-2-3-4-5-6-7-8-9
+Longest hbond chain in frame 587: 0-5-4-8-9-1-6-2-7-3
 
 ---------- HBond Loops ----------
 

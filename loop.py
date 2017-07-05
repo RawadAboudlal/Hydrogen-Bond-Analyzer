@@ -5,6 +5,9 @@ Created on Jun 30, 2017
 '''
 
 class Graph:
+	'''
+	Uses an adjacency list representation to represent an undirected graph.
+	'''
 	
 	def __init__(self):
 		self.graph = {}
@@ -22,6 +25,9 @@ class Graph:
 		
 		if not b in self.graph[a]:
 			self.graph[a].append(b)
+	
+	def __len__(self):
+		return len(self.graph)
 	
 	def isCyclic(self):
 		
@@ -47,12 +53,29 @@ class Graph:
 				return True
 				
 		return False
-
-def createGraphFromHBonds(hbondList):
 	
-	graph = Graph()
+	def getConnectedComponents(self):
+		'''
+		Returns list of graphs, each representing a connected component cotnained in this original graph.
+		'''
+		
+		visited = {i: False for i in self.graph}
+		
+		graphs = []
+		
+		for v in self.graph:
+			if not visited[v]:
+				graph = Graph()
+				graphs.append(graph)
+				self.connectedComponentsUtil(v, visited, graph)
+		
+		return graphs
 	
-	for hbond in hbondList:
-		graph.addGroup(hbond.mol1, hbond.mol2)
-	
-	return graph
+	def connectedComponentsUtil(self, v, visited, graph):
+		
+		visited[v] = True
+		
+		for u in self.graph[v]:
+			if not visited[u]:
+				graph.addGroup(v, u)
+				self.connectedComponentsUtil(u, visited, graph)
