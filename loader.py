@@ -43,7 +43,7 @@ def loadAnimatedXyz(name, moleculeAtomCount, fromFrame, toFrame):
 					#														  + 1 to include the comment line.
 					skipLines(xyzFile, int(atomCountMatch.group("atomCount")) + 1)
 					# when toFrame = -1, go to end of file (don't skip any lines).
-				elif toFrame != -1 and currentFrame >= toFrame:
+				elif toFrame != -1 and currentFrame > toFrame:
 					return frames
 				else:
 					
@@ -102,7 +102,7 @@ def loadInput(name):
 		maxBondDistanceRegex = re.compile("max Bond distance", re.IGNORECASE)
 		hbondTypesRegex = re.compile("hbond types", re.IGNORECASE)
 		outputFileRegex = re.compile("output file", re.IGNORECASE)
-		maxIntermoleculeDistanceRegex = re.compile("max intermolecule distance", re.IGNORECASE
+		maxIntermoleculeDistanceRegex = re.compile("max intermolecule distance", re.IGNORECASE)
 		
 		# .+? -> ? matches up to the FIRST closing square bracker ].
 		listRegex = re.compile("(?P<list>\[.+?\])")

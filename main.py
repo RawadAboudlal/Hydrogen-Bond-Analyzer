@@ -52,7 +52,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 		for centralMolecule in frame:
 			
 			if not (centralMolecule.identifier in totalHBondsCount):
-        
+				
 				# Each Molecule starts with 0 h-bonds.
 				totalHBondsCount[centralMolecule.identifier] = 0
 			
@@ -96,7 +96,7 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 						# Ensures highly electronegative atom and hydrogen are actually bonded.
 						if not withinDistance:
 							continue
-            
+						
 						for otherAtom in otherMolecule.atoms:
 							
 							# This should be an electronegative atom that is being bonded to by the hydrogen.
@@ -148,7 +148,7 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		if toFrame == -1:
 			toFrame = fromFrame + framesCount
 		
-		outputFile.write("From frame {} to frame (exclusive) {} (Total = {})\n".format(fromFrame, toFrame, framesCount))
+		outputFile.write("From frame {} to frame {} (Total = {})\n".format(fromFrame, toFrame, framesCount))
 		
 		outputFile.write("Configuration:\n\tMax Hydrogen Bond Distance = {}, Max Hydrogen Bond Angle = {}\n".format(maxDistance, maxAngle))
 		
