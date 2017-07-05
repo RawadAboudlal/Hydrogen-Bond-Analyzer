@@ -77,7 +77,8 @@ class Bond:
 		return not self.__eq__(other)
 	
 	def __repr__(self):
-		return "Bond(Id 1: {}, Id 2: {})".format(self.atom1, self.atom2)
+		return "Bond(Id 1: {}, Id 2: {})".format(self.mol1.identifier, self.mol2.identifier)
+# 		return "Bond(Id 1: {}, Id 2: {})".format(self.atom1, self.atom2)
 	
 
 class HBondType:

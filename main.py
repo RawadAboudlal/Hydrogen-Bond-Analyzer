@@ -109,8 +109,6 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							if not withinDistance:
 								continue
 							
-							#print("{} and {} are within distance w/ distance of: {}".format(centralAtom2, otherAtom, distanceOtherCentral2))
-							
 							cosAngle = np.dot(central2Central1Diff, otherCentral1Diff) / (distanceCentral2Central1 * distanceOtherCentral1)
 							angle = np.arccos(cosAngle)
 							
@@ -196,6 +194,7 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 					idsInChain.append(hbond.mol1.identifier)
 					idsInChain.append(hbond.mol2.identifier)
 				
+				
 				uniqueIdsInChain = set(idsInChain)
 				
 				outputFile.write("Longest hbond chain in frame {}: {}\n".format(frameIndex, "-".join(str(molId) for molId in uniqueIdsInChain)))
@@ -270,10 +269,6 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 			outputFile.write("HBond {}: {}, S_HB: {}\n".format(hbondIndex, initialHBondsList[hbondIndex], S_HB[hbondIndex]))
 		
 		outputFile.flush()
-	
-
-def isSymmetric(matrix, tolerance=1e-8):
-	return np.allclose(matrix, matrix.T, atol=tolerance)
 
 def isExactHBondPresent(hbondToCheck, hbondChain):
 	
