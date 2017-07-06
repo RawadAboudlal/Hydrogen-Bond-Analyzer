@@ -181,20 +181,22 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		
 		outputFile.write("\n---------- HBond Chains ----------\n")
 		
+		hbondChainsCount = {}
+		
 		for frameIndex in connectedHBondComponents:
-			
-			longestHBondChain = []
 			
 			for hbondChain in connectedHBondComponents[frameIndex]:
 				
-				if len(hbondChain) > len(longestHBondChain):
-					longestHBondChain = hbondChain
+				moleculesInChain = tuple(mol for mol in hbondChain.graph)
+				
+				if moleculesInChain in hbondChainsCount:
+					hbondChainsCount[moleculesInChain] += 1
+				else:
+					hbondChainsCount[moleculesInChain] = 1
+		
+		for hbondChain in hbondChainsCount:	
+			outputFile.write("HBond chain {} was found {} time(s).\n".format("-".join(str(molId) for molId in hbondChain), hbondChainsCount[hbondChain]))
 			
-			# TODO: Length requirement is temporary.
-			if longestHBondChain and len(longestHBondChain) > 3:
-				
-				outputFile.write("Longest hbond chain in frame {}: {}\n".format(frameIndex, "-".join(str(molId) for molId in longestHBondChain.graph)))
-				
 		
 		outputFile.write("\n---------- HBond Loops ----------\n")
 		
