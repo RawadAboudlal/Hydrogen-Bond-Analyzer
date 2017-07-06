@@ -1,20 +1,186 @@
-Total frames: 5001
+From frame 2000 to frame 3000 (Total = 1001)
 Configuration:
 	Max Hydrogen Bond Distance = 3.0, Max Hydrogen Bond Angle = 20.0
 
 ---------- Average HBonds per Molecule ----------
-Molecule with id 0 has an average of 1.0909818036392722 hydrogen bonds across the simulation.
-Molecule with id 1 has an average of 0.5308938212357528 hydrogen bonds across the simulation.
-Molecule with id 2 has an average of 1.3709258148370327 hydrogen bonds across the simulation.
-Molecule with id 3 has an average of 0.35172965406918616 hydrogen bonds across the simulation.
-Molecule with id 4 has an average of 1.0477904419116177 hydrogen bonds across the simulation.
+Molecule with id 0 has an average of 0.973026973026973 hydrogen bonds across the simulation.
+Molecule with id 1 has an average of 0.5274725274725275 hydrogen bonds across the simulation.
+Molecule with id 2 has an average of 1.1848151848151849 hydrogen bonds across the simulation.
+Molecule with id 3 has an average of 0.31868131868131866 hydrogen bonds across the simulation.
+Molecule with id 4 has an average of 0.962037962037962 hydrogen bonds across the simulation.
+
+---------- HBond Chains ----------
+Longest hbond chain in frame 2002: 2-0-4-1
+Longest hbond chain in frame 2004: 0-3-2-4-1
+Longest hbond chain in frame 2006: 2-0-3-4-1
+Longest hbond chain in frame 2007: 2-0-4-1
+Longest hbond chain in frame 2012: 2-0-4-1
+Longest hbond chain in frame 2024: 2-0-4-1
+Longest hbond chain in frame 2027: 2-0-3-4
+Longest hbond chain in frame 2028: 0-3-2-4-1
+Longest hbond chain in frame 2032: 0-3-2-4
+Longest hbond chain in frame 2039: 0-3-2-4-1
+Longest hbond chain in frame 2048: 0-3-2-4
+Longest hbond chain in frame 2051: 0-3-2-4
+Longest hbond chain in frame 2068: 2-0-4-1
+Longest hbond chain in frame 2079: 0-2-4-3
+Longest hbond chain in frame 2081: 0-3-2-4
+Longest hbond chain in frame 2090: 0-2-4-1-3
+Longest hbond chain in frame 2096: 2-3-4-1
+Longest hbond chain in frame 2097: 0-3-2-4
+Longest hbond chain in frame 2127: 2-0-4-1
+Longest hbond chain in frame 2139: 0-3-2-4-1
+Longest hbond chain in frame 2171: 0-2-4-1
+Longest hbond chain in frame 2180: 0-2-4-1-3
+Longest hbond chain in frame 2200: 0-3-2-4
+Longest hbond chain in frame 2203: 0-3-2-4
+Longest hbond chain in frame 2245: 2-0-4-1
+Longest hbond chain in frame 2252: 0-2-4-1
+Longest hbond chain in frame 2253: 2-0-4-1
+Longest hbond chain in frame 2254: 0-3-2-4
+Longest hbond chain in frame 2259: 0-3-2-4-1
+Longest hbond chain in frame 2262: 2-0-4-1
+Longest hbond chain in frame 2271: 0-2-4-1
+Longest hbond chain in frame 2288: 0-2-4-1-3
+Longest hbond chain in frame 2290: 0-2-4-1
+Longest hbond chain in frame 2292: 2-3-4-1
+Longest hbond chain in frame 2294: 2-0-4-1
+Longest hbond chain in frame 2309: 2-0-4-1
+Longest hbond chain in frame 2329: 2-0-4-1
+Longest hbond chain in frame 2357: 0-3-2-4-1
+Longest hbond chain in frame 2359: 0-2-4-1-3
+Longest hbond chain in frame 2361: 0-2-4-1
+Longest hbond chain in frame 2365: 0-3-2-4-1
+Longest hbond chain in frame 2371: 2-0-4-1
+Longest hbond chain in frame 2373: 0-2-4-3
+Longest hbond chain in frame 2376: 2-0-4-1
+Longest hbond chain in frame 2377: 2-0-4-1
+Longest hbond chain in frame 2385: 2-3-4-1
+Longest hbond chain in frame 2410: 2-3-4-1
+Longest hbond chain in frame 2411: 2-3-4-1
+Longest hbond chain in frame 2412: 0-3-2-4-1
+Longest hbond chain in frame 2413: 0-3-2-4-1
+Longest hbond chain in frame 2427: 0-3-2-4
+Longest hbond chain in frame 2429: 0-2-4-1
+Longest hbond chain in frame 2432: 0-3-2-4-1
+Longest hbond chain in frame 2447: 0-3-2-4
+Longest hbond chain in frame 2449: 0-3-2-4
+Longest hbond chain in frame 2450: 0-3-2-4-1
+Longest hbond chain in frame 2461: 0-2-4-3
+Longest hbond chain in frame 2463: 0-2-4-1
+Longest hbond chain in frame 2464: 0-2-4-1
+Longest hbond chain in frame 2467: 0-2-4-1
+Longest hbond chain in frame 2477: 0-3-2-4
+Longest hbond chain in frame 2481: 0-2-4-1
+Longest hbond chain in frame 2482: 2-0-4-1
+Longest hbond chain in frame 2487: 0-2-4-1
+Longest hbond chain in frame 2490: 0-3-2-4
+Longest hbond chain in frame 2496: 2-0-4-1
+Longest hbond chain in frame 2507: 2-0-4-1
+Longest hbond chain in frame 2512: 2-0-4-1
+Longest hbond chain in frame 2522: 0-2-4-3
+Longest hbond chain in frame 2533: 0-3-2-4
+Longest hbond chain in frame 2534: 0-2-4-3
+Longest hbond chain in frame 2551: 2-0-4-1
+Longest hbond chain in frame 2552: 2-0-4-1
+Longest hbond chain in frame 2553: 0-3-2-4
+Longest hbond chain in frame 2554: 2-0-4-1
+Longest hbond chain in frame 2560: 0-3-2-4
+Longest hbond chain in frame 2561: 0-3-2-4
+Longest hbond chain in frame 2585: 0-3-2-4
+Longest hbond chain in frame 2593: 0-3-2-4
+Longest hbond chain in frame 2599: 2-0-4-1
+Longest hbond chain in frame 2623: 0-3-2-4
+Longest hbond chain in frame 2624: 2-0-4-1
+Longest hbond chain in frame 2626: 2-0-4-1
+Longest hbond chain in frame 2627: 2-0-4-1
+Longest hbond chain in frame 2628: 2-0-4-1
+Longest hbond chain in frame 2630: 0-2-4-1-3
+Longest hbond chain in frame 2635: 2-0-4-1
+Longest hbond chain in frame 2638: 0-3-2-4
+Longest hbond chain in frame 2640: 0-2-4-1
+Longest hbond chain in frame 2643: 2-0-4-1
+Longest hbond chain in frame 2650: 0-3-2-4
+Longest hbond chain in frame 2651: 2-0-4-1
+Longest hbond chain in frame 2655: 0-2-4-3
+Longest hbond chain in frame 2662: 0-3-2-4
+Longest hbond chain in frame 2696: 0-3-2-4
+Longest hbond chain in frame 2701: 2-3-4-1
+Longest hbond chain in frame 2706: 0-2-4-1
+Longest hbond chain in frame 2772: 2-3-4-1
+Longest hbond chain in frame 2787: 2-0-4-1
+Longest hbond chain in frame 2798: 2-3-4-1
+Longest hbond chain in frame 2799: 2-0-4-1
+Longest hbond chain in frame 2801: 0-3-2-4-1
+Longest hbond chain in frame 2802: 0-3-2-4
+Longest hbond chain in frame 2807: 2-0-4-1
+Longest hbond chain in frame 2817: 2-0-4-1
+Longest hbond chain in frame 2820: 0-3-2-4-1
+Longest hbond chain in frame 2821: 0-3-2-4-1
+Longest hbond chain in frame 2823: 2-0-4-1
+Longest hbond chain in frame 2824: 0-2-4-1
+Longest hbond chain in frame 2827: 2-0-4-1
+Longest hbond chain in frame 2828: 0-3-2-4-1
+Longest hbond chain in frame 2829: 0-3-2-4-1
+Longest hbond chain in frame 2831: 0-3-2-4
+Longest hbond chain in frame 2832: 0-3-2-4-1
+Longest hbond chain in frame 2834: 2-0-4-1
+Longest hbond chain in frame 2835: 0-3-2-4
+Longest hbond chain in frame 2837: 0-2-4-1
+Longest hbond chain in frame 2839: 2-0-4-1
+Longest hbond chain in frame 2846: 0-3-2-4-1
+Longest hbond chain in frame 2847: 0-3-2-4-1
+Longest hbond chain in frame 2857: 2-0-4-1
+Longest hbond chain in frame 2862: 0-3-2-4-1
+Longest hbond chain in frame 2865: 0-2-4-1
+Longest hbond chain in frame 2867: 2-0-4-1
+Longest hbond chain in frame 2873: 0-2-4-1-3
+Longest hbond chain in frame 2875: 0-2-4-1-3
+Longest hbond chain in frame 2876: 2-0-4-1
+Longest hbond chain in frame 2879: 2-0-4-1
+Longest hbond chain in frame 2886: 2-0-4-1
+Longest hbond chain in frame 2889: 0-3-2-4
+Longest hbond chain in frame 2898: 0-2-4-1
+Longest hbond chain in frame 2916: 2-0-4-1
+Longest hbond chain in frame 2919: 2-0-4-1
+Longest hbond chain in frame 2928: 2-0-4-1
+Longest hbond chain in frame 2930: 0-2-4-1-3
+Longest hbond chain in frame 2931: 2-0-4-1
+Longest hbond chain in frame 2932: 0-3-2-4-1
+Longest hbond chain in frame 2934: 0-3-2-4
+Longest hbond chain in frame 2935: 2-0-4-1
+Longest hbond chain in frame 2937: 0-3-2-4
+Longest hbond chain in frame 2941: 0-3-2-4-1
+Longest hbond chain in frame 2946: 0-3-2-4
+Longest hbond chain in frame 2948: 0-2-4-1-3
+Longest hbond chain in frame 2950: 0-3-2-4
+Longest hbond chain in frame 2952: 2-0-4-1
+Longest hbond chain in frame 2955: 2-0-4-1
+Longest hbond chain in frame 2956: 0-3-2-4-1
+Longest hbond chain in frame 2960: 0-3-2-4
+Longest hbond chain in frame 2961: 0-3-2-4-1
+Longest hbond chain in frame 2967: 0-3-2-4
+Longest hbond chain in frame 2973: 2-0-4-1
+Longest hbond chain in frame 2977: 2-0-3-4-1
+Longest hbond chain in frame 2979: 2-0-4-1
+Longest hbond chain in frame 2980: 0-3-2-4
+Longest hbond chain in frame 2983: 0-3-2-4
+Longest hbond chain in frame 2985: 0-3-2-4-1
+Longest hbond chain in frame 2992: 2-0-3-4-1
+Longest hbond chain in frame 2994: 2-0-4-1
+Longest hbond chain in frame 2997: 0-3-2-4
+
+---------- HBond Loops ----------
 
 ---------- Total Number of HBonds ----------
 HBond Type 1 was found 0 time(s).
-HBond Type 2 was found 235 time(s).
-HBond Type 3 was found 679 time(s).
+HBond Type 2 was found 51 time(s).
+HBond Type 3 was found 118 time(s).
 HBond Type 4 was found 0 time(s).
 HBond Type 5 was found 0 time(s).
 HBond Type 6 was found 0 time(s).
 HBond Type 7 was found 0 time(s).
 HBond Type 8 was found 0 time(s).
+
+---------- Continuous Hydrogen Bond Time Correlation Function ----------
+From frame 2000 to frame 3000
