@@ -141,7 +141,12 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 
 def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbondTypes, fromFrame, toFrame):
 	
-	with open(outputFileName, "w") as outputFile:
+	totalHBondsCount = result[0]
+	hbondGraphs = result[1]
+	totalHBondsBetweenMolecules = result[2]
+	totalHBonds = result[3]
+	
+	with open(outputFileName + ".txt", "w") as outputFile:
 		
 		if toFrame == -1:
 			toFrame = fromFrame + framesCount
@@ -149,11 +154,6 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		outputFile.write("From frame {} to frame {} (Total = {})\n".format(fromFrame, toFrame, framesCount))
 		
 		outputFile.write("Configuration:\n\tMax Hydrogen Bond Distance = {}, Max Hydrogen Bond Angle = {}\n".format(maxDistance, maxAngle))
-		
-		totalHBondsCount = result[0]
-		hbondGraphs = result[1]
-		totalHBondsBetweenMolecules = result[2]
-		totalHBonds = result[3]
 		
 		outputFile.write("\n---------- Average HBonds per Molecule ----------\n")
 		
@@ -235,18 +235,29 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		for hbondType in totalHBondTypes:
 			outputFile.write("HBond Type {} was found {} time(s).\n".format(hbondType, totalHBondTypes[hbondType]))
 		
-		S_HB = {}
+		outputFile.flush()
+		
+	with open(outputFileName + ".dat", "w") as outputFile:
+		
+		outputFile.write("#---------- Continuous Hydrogen Bond Time Correlation Function ----------\n")
+		outputFile.write("#From frame {} to frame {}\n".format(fromFrame, toFrame))
+		outputFile.write("#Frame Index | S_HB\n")
+		
 		
 		initialHBondsList = totalHBonds[fromFrame]
+		
+		h_of_0 = len(initialHBondsList)
+		
+		H_of_t = {}
 		
 		initialHBonds = {i: initialHBondsList[i] for i in range(len(initialHBondsList))}
 		
 		for initialHBondIndex in initialHBonds:
-			S_HB[initialHBondIndex] = 1
+			H_of_t[initialHBondIndex] = 1
 		
-		for frameIndex in range(fromFrame + 1, toFrame):
+		for t in range(fromFrame, toFrame + 1):
 			
-			currentHBonds = totalHBonds[frameIndex]
+			currentHBonds = totalHBonds[t]
 			
 			# Use new list made from keys to avoid "dictionary changed size during iteration" error.
 			for hbondIndex in list(initialHBonds):
@@ -254,14 +265,10 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 				hbond = initialHBonds[hbondIndex]
 				
 				if not isExactHBondPresent(hbond, currentHBonds):
-					S_HB[hbondIndex] = 0
+					H_of_t[hbondIndex] = 0
 					del initialHBonds[hbondIndex]
-		
-		outputFile.write("\n---------- Continuous Hydrogen Bond Time Correlation Function ----------\n")
-		outputFile.write("From frame {} to frame {}\n".format(fromFrame, toFrame))
-		
-		for hbondIndex in S_HB:
-			outputFile.write("HBond {}: {}, S_HB: {}\n".format(hbondIndex, initialHBondsList[hbondIndex], S_HB[hbondIndex]))
+			
+			outputFile.write("{} {}\n".format(t, sum(H_of_t[hbondIndex] for hbondIndex in H_of_t) / h_of_0))
 		
 		outputFile.flush()
 

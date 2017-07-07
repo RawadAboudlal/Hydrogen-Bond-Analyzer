@@ -9,5 +9,5 @@ max h-bond distance = 3.0
 max bond distance = 1.6
 # Need to be in order: hydrogen index comes first then other atom.
 hbond types = [1-12, 1-12] [9-12, 1-10] [9-10, 9-10]
-output file = res/Cytosine500K/25/output.txt
+output file = res/Cytosine500K/25/output
 max intermolecule distance = 15
