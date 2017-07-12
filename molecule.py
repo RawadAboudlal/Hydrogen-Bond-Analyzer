@@ -6,7 +6,7 @@ Created on May 30, 2017
 
 import numpy as np
 
-class molecule:
+class Molecule:
 	
 	def __init__(self, identifier):
 		self.atoms = []
@@ -25,7 +25,7 @@ class molecule:
 		
 		self.position = np.array([self.x, self.y, self.z])
 	
-class atom:
+class Atom:
 	
 	def __init__(self, element, identifier, x, y, z):
 		self.element = element
@@ -45,19 +45,31 @@ class atom:
 		return "Atom({}, {}, {}, {}, {})".format(self.element, self.identifier, self.x, self.y, self.z)
 	
 
-class bond:
+class Bond:
 	
-	# Can represent h-bond between 2 molecules or a template bond for h-bonds between generic molecules or a covalent bond within the same molecule.
+	# Can represent h-Bond between 2 molecules or a template Bond for h-bonds between generic molecules or a covalent Bond within the same Molecule.
 	def __init__(self, atom1, atom2, mol1 = None, mol2 = None):
 		self.atom1 = atom1
 		self.atom2 = atom2
 		self.mol1 = mol1
 		self.mol2 = mol2
 	
+	def is_part_of(self, molecule):
+		'''
+		Returns True if molecule is the same as one of the molecules (mol1 or mol1) that make up this Bond.
+		'''
+		return self.mol1.identifier == molecule.identifier or self.mol2.identifier == molecule.identifier
+	
+	def deep_equal(self, other):
+		'''
+		Must satisfy self.__eq__(other) and must also have the same molecules bonded as other.
+		'''
+		return self.__eq__(other) and sorted((self.mol1.identifier, self.mol2.identifier)) == sorted((other.mol1.identifier, other.mol2.identifier))
+	
 	def __eq__(self, other):
 		'''
-		Important Note: Assumes that the atoms are sorted such that atom1 is the H of the h-bond and atom2 is the
-		electronegative atom the H is bonded with.
+		Important Note: Assumes that the atoms are sorted such that atom1 is the H of the h-Bond and atom2 is the
+		electronegative Atom the H is bonded with.
 		'''
 		return self.atom1 == other.atom1 and self.atom2 == other.atom2
 	
@@ -65,10 +77,11 @@ class bond:
 		return not self.__eq__(other)
 	
 	def __repr__(self):
-		return "Bond(Id 1: {}, Id 2: {})".format(self.atom1, self.atom2)
+		return "Bond(Id 1: {}, Id 2: {})".format(self.mol1.identifier, self.mol2.identifier)
+# 		return "Bond(Id 1: {}, Id 2: {})".format(self.atom1, self.atom2)
 	
 
-class hbond_type:
+class HBondType:
 	
 	# bonds = list of bonds that characterize this hbond between 2 molecules.
 	def __init__(self, identifier, bonds):
@@ -85,19 +98,14 @@ class hbond_type:
 		
 		matches = 0
 		
-		for bond1 in self.bonds:
-			for bond2 in other.bonds:
-				if bond1 == bond2:
-					
-					matches += 1
-					
-					if matches >= numBonds:
-						return True
-					
-					# Prevents checking if a bond from this template matches multiple times (i.e. duplicated in the target.
-					break
+		for Bond in other.bonds:
+			if Bond in self.bonds:
+				matches += 1
+			else:
+				return False
 		
-		return False
+		return matches >= numBonds
+		
 	
 	def __repr__(self):
 		return "HBondType(Bonds: {})".format(self.bonds)

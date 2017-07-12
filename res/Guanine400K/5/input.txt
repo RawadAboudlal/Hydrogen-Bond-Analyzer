@@ -1,0 +1,14 @@
+atoms file = sim/Guanine400K/5/5guanine400K.xyz
+atoms per molecule = 16
+from frame = 2000
+to frame = 3000
+max angle = 20.0
+max h-bond distance = 3.0
+# Maximum distance for two atoms to be bonded. When selecting 2 atoms, this will check if they are close enough to
+# be bonded together; an h-bond can only be formed when the two selected atoms are bonded.
+max bond distance = 1.6
+# Need to be in order: hydrogen index comes first then other atom.
+# Additional h-bonds: [11-15, 13-1] [10-15, 13-7] [7-15, 10-1] [5-7, 7-10] [10-7, 11-7] [11-7, 10-7] [10-7, 10-7]
+hbond types = [13-15, 13-15] [10-15, 13-1] [11-15, 13-7] [5-15, 13-7] [7-15, 11-1] [5-7, 5-7] [5-7, 7-11] [11-7, 11-7]
+output file = res/Guanine400K/5/output
+max intermolecule distance = 15

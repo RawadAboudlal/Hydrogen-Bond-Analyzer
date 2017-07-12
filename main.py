@@ -9,24 +9,28 @@ import sys
 import time
 
 import loader
-from molecule import bond, hbond_type
+from loop import Graph
+from molecule import Bond, HBondType
 import numpy as np
 
 
 # frames should be a dictionary.
-def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
+def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxIntermoleculeDistance):
 	
-	centralAtom1Regex = re.compile("N|O|S|F|C")
+	centralAtom1Regex = re.compile("N|O|S|F")# "N|O|S|F|C". Keep this way for now.
 	hbondDonors = re.compile("N|O|S|F")
 	hbondAcceptors = re.compile("H|N")
 	
 	# Molecule Id (int): # h-bonds
 	totalHBondsCount = {}
 	
-	# Frame Index (int): list of molecules in longest chain.
-	hbondChains = {}
+	# Frame index (int): Graph
+	hbondGraphs = {}
 	
-	# All bonds, for each molecule, across all the frames.
+	# All h-bonds based on which 2 molecules they connect.
+	totalHBondsBetweenMolecules = {}
+	
+	# All h-bonds across all the frames.
 	totalHBonds = {}
 	
 	# frames is a dictionary so we loop through keys this way. key = index of frame; don't have to be in order.
@@ -34,63 +38,64 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 		
 		frame = frames[frameIndex]
 		
-		# Holds list of all the chains
-		chainsList = []
+		graph = Graph()
 		
-		molCount = len(frame)
+		hbondGraphs[frameIndex] = graph
 		
-		adjacencyMatrix = []
-		
-		# tuple (sorted, has exactly 2 mol id's): [bond objects]
+		# tuple (sorted, has exactly 2 mol id's): [Bond objects]
 		bondsBetweenMolecules = {}
 		
-		totalHBonds[frameIndex] = bondsBetweenMolecules
+		totalHBondsBetweenMolecules[frameIndex] = bondsBetweenMolecules
+		
+		totalHBonds[frameIndex] = []
 		
 		for centralMolecule in frame:
 			
 			if not (centralMolecule.identifier in totalHBondsCount):
-				# Each molecule starts with 0 h-bonds.
+				
+				# Each Molecule starts with 0 h-bonds.
 				totalHBondsCount[centralMolecule.identifier] = 0
 			
-			for centralAtom1Index in range(len(centralMolecule.atoms)):
+			for otherMolecule in frame:
 				
-				centralAtom1 = centralMolecule.atoms[centralAtom1Index]
-				
-				# This should be an electronegative atom. EXCEPT for the case of nitrogen being the h-bond acceptor.
-				if not centralAtom1Regex.fullmatch(centralAtom1.element):
+				if centralMolecule == otherMolecule:
 					continue
 				
-				# +1 so we don't try to match this atom with itself.
-				for centralAtom2Index in range(len(centralMolecule.atoms)):
+				withinDistance, otherCentralMoleculeDifference, distanceOtherCentralMolecule = isWithinDistance(centralMolecule.position, otherMolecule.position, maxIntermoleculeDistance)
+				
+				if not withinDistance:
+					continue
+				
+				del otherCentralMoleculeDifference, distanceOtherCentralMolecule
+				
+				# Key used for the bonding between these two molecules.
+				bondKey = tuple(sorted((centralMolecule.identifier, otherMolecule.identifier)))
+				
+				# We need to incremenet h-Bond count for both central and other Molecule so this must be initialized.
+				if not otherMolecule.identifier in totalHBondsCount:
+					totalHBondsCount[otherMolecule.identifier] = 0
+				
+				for centralAtom1 in centralMolecule.atoms:
 					
-					centralAtom2 = centralMolecule.atoms[centralAtom2Index]
-					
-					if centralAtom1 == centralAtom2:
+					# This should be an electronegative atom. EXCEPT for the case of nitrogen being the h-Bond acceptor.
+					if not centralAtom1Regex.fullmatch(centralAtom1.element):
 						continue
 					
-					# This is the h-bond acceptor, needs empty orbital, N can do it too.
-					if not hbondAcceptors.fullmatch(centralAtom2.element):
-						continue
-					
-					# Can be bonded across cell boundary.
-					withinDistance, central2Central1Diff, distanceCentral2Central1 = isWithinDistance(centralAtom1.position, centralAtom2.position, maxBondDistance)
-					
-					# Ensures highly electronegative atom and hydrogen are actually bonded.
-					if not withinDistance:
-						continue
-					
-					# +1 so we don't match molecule with itself.
-					for otherMolecule in frame:
+					for centralAtom2 in centralMolecule.atoms:
 						
-						if centralMolecule == otherMolecule:
+						if centralAtom1 == centralAtom2:
 							continue
 						
-						# Key used for the bonding between these two molecules.
-						bondKey = tuple(sorted((centralMolecule.identifier, otherMolecule.identifier)))
+						# This is the h-Bond acceptor, needs empty orbital, N can do it too.
+						if not hbondAcceptors.fullmatch(centralAtom2.element):
+							continue
 						
-						# We need to incremenet h-bond count for both central and other molecule so this must be initialized.
-						if not otherMolecule.identifier in totalHBondsCount:
-							totalHBondsCount[otherMolecule.identifier] = 0
+						# Can be bonded across cell boundary.
+						withinDistance, central2Central1Diff, distanceCentral2Central1 = isWithinDistance(centralAtom1.position, centralAtom2.position, maxBondDistance)
+						
+						# Ensures highly electronegative atom and hydrogen are actually bonded.
+						if not withinDistance:
+							continue
 						
 						for otherAtom in otherMolecule.atoms:
 							
@@ -98,71 +103,65 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance):
 							if not hbondDonors.fullmatch(otherAtom.element):
 								continue
 							
-							withinDistance, otherCentral2Diff, distanceOtherCentral2 = isWithinDistance(centralAtom2.position, otherAtom.position, maxHBondDistance)
+							# VMD seems to calculate distance between both electronegative atoms rather than the hydrogen and the other electronegative atom.
+							withinDistance, otherCentral1Diff, distanceOtherCentral1 = isWithinDistance(centralAtom1.position, otherAtom.position, maxHBondDistance)
 							
 							if not withinDistance:
 								continue
 							
-							cosAngle = np.dot(central2Central1Diff, otherCentral2Diff) / (distanceCentral2Central1 * distanceOtherCentral2)
+							cosAngle = np.dot(central2Central1Diff, otherCentral1Diff) / (distanceCentral2Central1 * distanceOtherCentral1)
 							angle = np.arccos(cosAngle)
 							
 							if angle > maxAngle:
 								continue
 							
-							# H-bond is found here.
+							#print("\t{} and {} are also within angle ({}) w/ angle of: {}".format(centralAtom2, otherAtom, maxAngle, angle))
 							
-							# Order of atoms in bond is important; first one should always be the h-bond acceptor.
-							b = bond(centralAtom2.identifier, otherAtom.identifier, mol1 = centralMolecule, mol2 = otherMolecule)
+							# H-Bond is found here.
+							
+							# Order of atoms in Bond is important; first one should always be the h-Bond donor (usually hydrogen).
+							hbond = Bond(centralAtom2.identifier, otherAtom.identifier, mol1 = centralMolecule, mol2 = otherMolecule)
 							
 							if not bondKey in bondsBetweenMolecules:
 								bondsBetweenMolecules[bondKey] = []
 							
-							bondsBetweenMolecules[bondKey].append(b)
+							bondsBetweenMolecules[bondKey].append(hbond)
 							
-							for hbondChain in hbondChains[frameIndex]:
-								
-								if centralMolecule.identifier in hbondChain:
-									hbondChain.append(otherMolecule.identifier)
-									break
-								elif otherMolecule.identifier in hbondChain:
-									hbondChain.append(centralMolecule.identifier)
-									break
-								
-							else:
-								hbondChains[frameIndex].append([centralMolecule.identifier, otherMolecule.identifier])
+							graph.addGroup(hbond.mol1.identifier, hbond.mol2.identifier)
 							
 							totalHBondsCount[centralMolecule.identifier] += 1
 							totalHBondsCount[otherMolecule.identifier] += 1
 							
+							totalHBonds[frameIndex].append(hbond)
+							
+							#print("At frame: {}, Bond: ({}) {}-{} === {} ({})\n\tAs indices: {}-{} === {}".format(frameIndex, centralMolecule.identifier, centralAtom1.element, centralAtom2.element, otherAtom.element, otherMolecule.identifier, centralAtom1.identifier, centralAtom2.identifier, otherAtom.identifier))
+							
 		
-	return (totalHBondsCount, hbondChains, totalHBonds)
+	return (totalHBondsCount, hbondGraphs, totalHBondsBetweenMolecules, totalHBonds)
 
-def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbondTypes):
+def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbondTypes, fromFrame, toFrame):
 	
-	with open(outputFileName, "w") as outputFile:
+	totalHBondsCount = result[0]
+	hbondGraphs = result[1]
+	totalHBondsBetweenMolecules = result[2]
+	totalHBonds = result[3]
+	
+	with open(outputFileName + ".txt", "w") as outputFile:
 		
-		outputFile.write("Total frames: {}\n".format(framesCount))
+		if toFrame == -1:
+			toFrame = fromFrame + framesCount
+		
+		outputFile.write("From frame {} to frame {} (Total = {})\n".format(fromFrame, toFrame, framesCount))
 		
 		outputFile.write("Configuration:\n\tMax Hydrogen Bond Distance = {}, Max Hydrogen Bond Angle = {}\n".format(maxDistance, maxAngle))
 		
-		totalHBondsCount = result[0]
-		hbondChains = result[1]
-		totalHBonds = result[2]
-		
 		outputFile.write("\n---------- Average HBonds per Molecule ----------\n")
 		
-		for molId in totalHBondsCount:
+		for molId in sorted(totalHBondsCount):
 			
 			avgHBonds = totalHBondsCount[molId] / framesCount
 			
 			outputFile.write("Molecule with id {} has an average of {} hydrogen bonds across the simulation.\n".format(molId, avgHBonds))
-		
-# 		outputFile.write("\n---------- HBonds Chains ----------\n")
-# 		
-# 		for frameIndex in hbondChains:
-# 			outputFile.write("Frame {}:\n".format(frameIndex))
-# 			for hbondChain in hbondChains[frameIndex]:
-# 				outputFile.write("\tMolecules in this Chain: {}\n".format(", ".join(str(molId) for molId in set(hbondChain))))
 		
 # 		outputFile.write("\n---------- HBonds of Each Molecule ----------\n")
 # 		
@@ -173,16 +172,51 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 # 			
 # 			for molId in bondMolDict:
 # 				outputFile.write("\tMol with id {} has following bonds:\n".format(molId))
-# 				outputFile.write("{}\n".format("\n".join("\t\t" + str(bond) for bond in bondMolDict[molId])))
+# 				outputFile.write("{}\n".format("\n".join("\t\t" + str(Bond) for Bond in bondMolDict[molId])))
+		
+		connectedHBondComponents = {}
+		
+		for frameIndex in hbondGraphs:
+			connectedHBondComponents[frameIndex] = hbondGraphs[frameIndex].getConnectedComponents()
+		
+		outputFile.write("\n---------- HBond Chains ----------\n")
+		
+		hbondChainsCount = {}
+		
+		for frameIndex in connectedHBondComponents:
+			
+			for hbondChain in connectedHBondComponents[frameIndex]:
+				
+				moleculesInChain = tuple(mol for mol in hbondChain.graph)
+				
+				if moleculesInChain in hbondChainsCount:
+					hbondChainsCount[moleculesInChain] += 1
+				else:
+					hbondChainsCount[moleculesInChain] = 1
+		
+		for hbondChain in hbondChainsCount:	
+			outputFile.write("HBond chain {} was found {} time(s).\n".format("-".join(str(molId) for molId in hbondChain), hbondChainsCount[hbondChain]))
+			
+		
+		outputFile.write("\n---------- HBond Loops ----------\n")
+		
+		for frameIndex in connectedHBondComponents:
+			
+			hbondChains = connectedHBondComponents[frameIndex]
+			
+			for hbondChain in hbondChains:
+				if hbondChain.isCyclic():
+					outputFile.write("There is a loop found at frame {} in the following chain: {}\n".format(frameIndex, hbondChain.graph.keys()))
+			
 		
 		totalHBondTypes = {}
 		
 		for hbondType in hbondTypes:
 			totalHBondTypes[hbondType.identifier] = 0
 		
-		for frameIndex in totalHBonds:
+		for frameIndex in totalHBondsBetweenMolecules:
 			
-			moleculesToBonds = totalHBonds[frameIndex]
+			moleculesToBonds = totalHBondsBetweenMolecules[frameIndex]
 			
 			for moleculePair in moleculesToBonds:
 				
@@ -195,21 +229,61 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 				if not hbondTypeMatch == None:
 					#print("Found hbond with type {} and mol id {}".format(hbondTypeMatch.identifier, molId))
 					totalHBondTypes[hbondTypeMatch.identifier] += 1
-				
 		
 		outputFile.write("\n---------- Total Number of HBonds ----------\n")
 		
 		for hbondType in totalHBondTypes:
 			outputFile.write("HBond Type {} was found {} time(s).\n".format(hbondType, totalHBondTypes[hbondType]))
 		
+		outputFile.flush()
+		
+	with open(outputFileName + ".dat", "w") as outputFile:
+		
+		outputFile.write("#---------- Continuous Hydrogen Bond Time Correlation Function ----------\n")
+		outputFile.write("#From frame {} to frame {}\n".format(fromFrame, toFrame))
+		outputFile.write("#Frame Index | S_HB\n")
+		
+		
+		initialHBondsList = totalHBonds[fromFrame]
+		
+		h_of_0 = len(initialHBondsList)
+		
+		H_of_t = {}
+		
+		initialHBonds = {i: initialHBondsList[i] for i in range(len(initialHBondsList))}
+		
+		for initialHBondIndex in initialHBonds:
+			H_of_t[initialHBondIndex] = 1
+		
+		for t in range(fromFrame, toFrame + 1):
+			
+			currentHBonds = totalHBonds[t]
+			
+			# Use new list made from keys to avoid "dictionary changed size during iteration" error.
+			for hbondIndex in list(initialHBonds):
+				
+				hbond = initialHBonds[hbondIndex]
+				
+				if not isExactHBondPresent(hbond, currentHBonds):
+					H_of_t[hbondIndex] = 0
+					del initialHBonds[hbondIndex]
+			
+			outputFile.write("{} {}\n".format(t, sum(H_of_t[hbondIndex] for hbondIndex in H_of_t) / h_of_0))
 		
 		outputFile.flush()
-	
 
-# Checks to see if the bonds a molecule has, bondInMolecule, fit with any of the given types of hbonds, hbondTypes.
+def isExactHBondPresent(hbondToCheck, hbondChain):
+	
+	for hbond in hbondChain:
+		if hbondToCheck.deep_equal(hbond):
+			return True
+	
+	return False
+
+# Checks to see if the bonds a Molecule has, bondInMolecule, fit with any of the given types of hbonds, hbondTypes.
 def isHBondType(hbondTypes, bondInMolecule):
 	
-	hbond = hbond_type(-1, bondInMolecule)
+	hbond = HBondType(-1, bondInMolecule)
 	
 	for hbondType in hbondTypes:
 		if hbondType.matches(hbond):
@@ -252,16 +326,16 @@ def main():
 		# sys.argv[0] = script name.
 		inputFileName = sys.argv[1]
 	except:
-		print("Not input file given.")
+		print("No input file given.")
 		sys.exit(1)
 	
 	print("Using following input file:", inputFileName)
 	
-	atomsFileName, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName = loader.loadInput(inputFileName)
+	atomsFileName, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName, maxIntermoleculeDistance = loader.loadInput(inputFileName)
 	
 	startTime = time.time()
 	
-	frames = loader.loadAnimatedXyz(atomsFileName, atomsPerMolecule, fromFrame=fromFrame, toFrame=toFrame)
+	frames = loader.loadAnimatedXyz(atomsFileName, atomsPerMolecule, fromFrame, toFrame)
 	
 	timeToLoadFrames = time.time() - startTime
 	
@@ -274,11 +348,11 @@ def main():
 	
 	startTime = time.time()
 	
-	result = analyzeFrames(frames, np.radians(maxAngle), maxHBondDistance, maxBondDistance)
+	result = analyzeFrames(frames, np.radians(maxAngle), maxHBondDistance, maxBondDistance, maxIntermoleculeDistance)
 	
 	timeToCountHBonds = time.time() - startTime
 	
-	outputResult(result, framesCount, outputFileName, maxHBondDistance, maxAngle, hbondTypes)
+	outputResult(result, framesCount, outputFileName, maxHBondDistance, maxAngle, hbondTypes, fromFrame, toFrame)
 	
 	minutesToCountHBonds = timeToCountHBonds // 60
 	secondsToCountHBonds = timeToCountHBonds % 60

@@ -100,3 +100,4 @@ ENV/
 
 # Simulation output files
 sim/
+/runall.bat
