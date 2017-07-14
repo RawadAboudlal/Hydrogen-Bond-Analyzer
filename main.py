@@ -239,36 +239,57 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		
 	with open(outputFileName + ".dat", "w") as outputFile:
 		
+		# Split frames into 5 time origins.
+		segments = 5
+		
 		outputFile.write("#---------- Continuous Hydrogen Bond Time Correlation Function ----------\n")
-		outputFile.write("#From frame {} to frame {}\n".format(fromFrame, toFrame))
+		outputFile.write("#From frame {} to frame {}. Number of origins: {}.\n".format(fromFrame, toFrame, segments))
 		outputFile.write("#Frame Index | S_HB\n")
 		
+		S_HB_sum = {}
 		
-		initialHBondsList = totalHBonds[fromFrame]
+		segmentSize = framesCount // segments
 		
-		h_of_0 = len(initialHBondsList)
-		
-		H_of_t = {}
-		
-		initialHBonds = {i: initialHBondsList[i] for i in range(len(initialHBondsList))}
-		
-		for initialHBondIndex in initialHBonds:
-			H_of_t[initialHBondIndex] = 1
-		
-		for t in range(fromFrame, toFrame + 1):
+		for segmentIndex in range(segments):
 			
-			currentHBonds = totalHBonds[t]
+			newStartFrame = segmentSize * segmentIndex + fromFrame
 			
-			# Use new list made from keys to avoid "dictionary changed size during iteration" error.
-			for hbondIndex in list(initialHBonds):
+			initialHBondsList = totalHBonds[newStartFrame]
+			
+			h_of_0 = len(initialHBondsList)
+			
+			H_of_t = {}
+			
+			initialHBonds = {i: initialHBondsList[i] for i in range(len(initialHBondsList))}
+			
+			for initialHBondIndex in initialHBonds:
+				H_of_t[initialHBondIndex] = 1
+			
+			# Don't add +1 to end. e.g. 500 frames (0-499), will go from 0-99, 100-199, 200-299, 300-399, and 400-499.
+			for t in range(newStartFrame, newStartFrame + segmentSize):
 				
-				hbond = initialHBonds[hbondIndex]
+				currentHBonds = totalHBonds[t]
 				
-				if not isExactHBondPresent(hbond, currentHBonds):
-					H_of_t[hbondIndex] = 0
-					del initialHBonds[hbondIndex]
-			
-			outputFile.write("{} {}\n".format(t, sum(H_of_t[hbondIndex] for hbondIndex in H_of_t) / h_of_0))
+				# Use new list made from keys to avoid "dictionary changed size during iteration" error.
+				for hbondIndex in list(initialHBonds):
+					
+					hbond = initialHBonds[hbondIndex]
+					
+					if not isExactHBondPresent(hbond, currentHBonds):
+						H_of_t[hbondIndex] = 0
+						del initialHBonds[hbondIndex]
+				
+				# Make it so final index is relative to 0; i.e. the first t will always be 0.
+				S_HB_index = t - newStartFrame
+				
+				if not S_HB_index in S_HB_sum:
+					S_HB_sum[S_HB_index] = 0
+				
+				S_HB_sum[S_HB_index] += sum(H_of_t[hbondIndex] for hbondIndex in H_of_t) / h_of_0
+		
+		for t in S_HB_sum:
+			# / segments to average out S_HB function over the given
+			outputFile.write("{} {}\n".format(t, S_HB_sum[t] / segments))
 		
 		outputFile.flush()
 
