@@ -34,7 +34,9 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 	# All h-bonds across all the frames.
 	totalHBonds = {}
 	
-	# frames is a dictionary so we loop through keys this way. key = index of frame; don't have to be in order.
+	# Frame index (int): [Molecule ids not in a bond]
+	totalNonBondingMolecules = {}
+	
 	for frameIndex in frames:
 		
 		frame = frames[frameIndex]
@@ -49,6 +51,10 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 		totalHBondsBetweenMolecules[frameIndex] = bondsBetweenMolecules
 		
 		totalHBonds[frameIndex] = []
+		
+		nonBondingMolecules = [mol.identifier for mol in frame]
+		
+		totalNonBondingMolecules[frameIndex] = nonBondingMolecules
 		
 		for centralMolecule in frame:
 			
@@ -116,8 +122,6 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							if angle > maxAngle:
 								continue
 							
-							#print("\t{} and {} are also within angle ({}) w/ angle of: {}".format(centralAtom2, otherAtom, maxAngle, angle))
-							
 							# H-Bond is found here.
 							
 							# Order of atoms in Bond is important; first one should always be the h-Bond donor (usually hydrogen).
@@ -135,10 +139,14 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 							
 							totalHBonds[frameIndex].append(hbond)
 							
-							#print("At frame: {}, Bond: ({}) {}-{} === {} ({})\n\tAs indices: {}-{} === {}".format(frameIndex, centralMolecule.identifier, centralAtom1.element, centralAtom2.element, otherAtom.element, otherMolecule.identifier, centralAtom1.identifier, centralAtom2.identifier, otherAtom.identifier))
+							if centralMolecule.identifier in nonBondingMolecules:
+								nonBondingMolecules.remove(centralMolecule.identifier)
+							
+							if otherMolecule.identifier in nonBondingMolecules:
+								nonBondingMolecules.remove(otherMolecule.identifier)
 							
 		
-	return (totalHBondsCount, hbondGraphs, totalHBondsBetweenMolecules, totalHBonds)
+	return (totalHBondsCount, hbondGraphs, totalHBondsBetweenMolecules, totalHBonds, totalNonBondingMolecules)
 
 def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFrame, toFrame):
 	
@@ -146,6 +154,7 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 	hbondGraphs = result[1]
 	totalHBondsBetweenMolecules = result[2]
 	totalHBonds = result[3]
+	totalNonBondingMolecules = result[4]
 	
 	with open("hbonds.txt", "w") as outputFile:
 		
@@ -163,17 +172,6 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 			avgHBonds = totalHBondsCount[molId] / framesCount
 			
 			outputFile.write("Molecule with id {} has an average of {:.2f} hydrogen bonds across the simulation.\n".format(molId, avgHBonds))
-		
-# 		outputFile.write("\n---------- HBonds of Each Molecule ----------\n")
-# 		
-# 		for frameIndex in totalBondsPerMolecule:
-# 			
-# 			bondMolDict = totalBondsPerMolecule[frameIndex]
-# 			outputFile.write("Frame {}:\n".format(frameIndex))
-# 			
-# 			for molId in bondMolDict:
-# 				outputFile.write("\tMol with id {} has following bonds:\n".format(molId))
-# 				outputFile.write("{}\n".format("\n".join("\t\t" + str(Bond) for Bond in bondMolDict[molId])))
 		
 		connectedHBondComponents = {}
 		
@@ -248,12 +246,9 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 				
 				bonds = moleculesToBonds[moleculePair]
 				
-				#print("{} have {} bonds with each other.".format(moleculePair, len(bonds)))
-				
 				hbondTypeMatch = isHBondType(hbondTypes, bonds)
 				
 				if not hbondTypeMatch == None:
-					#print("Found hbond with type {} and mol id {}".format(hbondTypeMatch.identifier, molId))
 					totalHBondTypes[hbondTypeMatch.identifier] += 1
 		
 		outputFile.write("\n---------- Total Number of HBonds ----------\n")
@@ -261,11 +256,19 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 		for hbondType in totalHBondTypes:
 			outputFile.write("HBond Type {} was found {} time(s).\n".format(hbondType, totalHBondTypes[hbondType]))
 		
-		outputFile.flush()
+		outputFile.write("\n---------- Average Non-Hydrogen Bonding Molecules ----------\n")
 		
+		nonBondingMoleculesCount = {}
+		
+		for frameIndex in totalNonBondingMolecules:
+			nonBondingMoleculesCount[frameIndex] = len(totalNonBondingMolecules[frameIndex])
+		
+		outputFile.write("There were on average {:.2f} non-hydrogen bonding molecules over {} frames.".format(sum(nonBondingMoleculesCount[frameIndex] for frameIndex in nonBondingMoleculesCount) / framesCount, framesCount))
+		
+		outputFile.flush()
+	
 	with open("lifetime.dat", "w") as outputFile:
 		
-		# Split frames into 5 time origins.
 		segments = 5
 		
 		outputFile.write("#---------- Continuous Hydrogen Bond Time Correlation Function ----------\n")
@@ -314,7 +317,7 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 				S_HB_sum[S_HB_index] += sum(H_of_t[hbondIndex] for hbondIndex in H_of_t) / h_of_0
 		
 		for t in S_HB_sum:
-			# / segments to average out S_HB function over the given
+			# / segments to average out S_HB function over the given number of segments.
 			outputFile.write("{} {}\n".format(t, S_HB_sum[t] / segments))
 		
 		outputFile.flush()
@@ -350,7 +353,7 @@ def isExactHBondPresent(hbondToCheck, hbondChain):
 	
 	return False
 
-# Checks to see if the bonds a Molecule has, bondInMolecule, fit with any of the given types of hbonds, hbondTypes.
+# Checks to see if the bonds a molecule has, bondInMolecule, fit with any of the given types of hbonds, hbondTypes.
 def isHBondType(hbondTypes, bondInMolecule):
 	
 	hbond = HBondType(-1, bondInMolecule)

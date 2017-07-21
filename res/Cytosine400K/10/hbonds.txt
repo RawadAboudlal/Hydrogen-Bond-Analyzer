@@ -23,3 +23,6 @@ Average chains length: 4.00
 HBond Type 1 was found 1 time(s).
 HBond Type 2 was found 12 time(s).
 HBond Type 3 was found 0 time(s).
+
+---------- Average Non-Hydrogen Bonding Molecules ----------
+There were on average 1.20 non-hydrogen bonding molecules over 10 frames.
