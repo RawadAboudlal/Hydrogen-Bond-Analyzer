@@ -116,7 +116,6 @@ def loadInput(name):
 		maxHBondDistance = 1
 		maxBondDistance = 1
 		hbondTypes = []
-		outputFileName = ""
 		maxIntermoleculeDistance = 1
 		
 		for line in inputFile:
@@ -163,10 +162,8 @@ def loadInput(name):
 					hbondType = HBondType(len(hbondTypes) + 1, bonds)
 					hbondTypes.append(hbondType)
 				
-			elif outputFileRegex.fullmatch(key):
-				outputFileName = value
 			elif maxIntermoleculeDistanceRegex.fullmatch(key):
 				maxIntermoleculeDistance = float(value)
 			
-		return atomsFile, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName, maxIntermoleculeDistance
+		return atomsFile, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, maxIntermoleculeDistance
 

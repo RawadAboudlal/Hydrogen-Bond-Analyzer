@@ -7,6 +7,7 @@ Created on May 30, 2017
 import re
 import sys
 import time
+import os
 
 import loader
 from loop import Graph
@@ -139,14 +140,14 @@ def analyzeFrames(frames, maxAngle, maxHBondDistance, maxBondDistance, maxInterm
 		
 	return (totalHBondsCount, hbondGraphs, totalHBondsBetweenMolecules, totalHBonds)
 
-def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbondTypes, fromFrame, toFrame):
+def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFrame, toFrame):
 	
 	totalHBondsCount = result[0]
 	hbondGraphs = result[1]
 	totalHBondsBetweenMolecules = result[2]
 	totalHBonds = result[3]
 	
-	with open(outputFileName + ".txt", "w") as outputFile:
+	with open("hbonds.txt", "w") as outputFile:
 		
 		if toFrame == -1:
 			toFrame = fromFrame + framesCount
@@ -161,7 +162,7 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 			
 			avgHBonds = totalHBondsCount[molId] / framesCount
 			
-			outputFile.write("Molecule with id {} has an average of {} hydrogen bonds across the simulation.\n".format(molId, avgHBonds))
+			outputFile.write("Molecule with id {} has an average of {:.2f} hydrogen bonds across the simulation.\n".format(molId, avgHBonds))
 		
 # 		outputFile.write("\n---------- HBonds of Each Molecule ----------\n")
 # 		
@@ -194,9 +195,14 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 				else:
 					hbondChainsCount[moleculesInChain] = 1
 		
-		for hbondChain in hbondChainsCount:	
-			outputFile.write("HBond chain {} was found {} time(s).\n".format("-".join(str(molId) for molId in hbondChain), hbondChainsCount[hbondChain]))
-			
+		numberOfUniqueChains = len(hbondChainsCount)
+		
+		numberOfTotalChains = 0
+		
+		for hbondChain in hbondChainsCount:
+			numberOfTotalChains += hbondChainsCount[hbondChain]
+		
+		outputFile.write("Average chains length: {:.2f}\n".format(numberOfTotalChains / numberOfUniqueChains))	
 		
 		outputFile.write("\n---------- HBond Loops ----------\n")
 		
@@ -237,7 +243,7 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 		
 		outputFile.flush()
 		
-	with open(outputFileName + ".dat", "w") as outputFile:
+	with open("lifetime.dat", "w") as outputFile:
 		
 		# Split frames into 5 time origins.
 		segments = 5
@@ -292,6 +298,29 @@ def outputResult(result, framesCount, outputFileName, maxDistance, maxAngle, hbo
 			outputFile.write("{} {}\n".format(t, S_HB_sum[t] / segments))
 		
 		outputFile.flush()
+	
+	with open("chain_size.dat", "w") as outputFile:
+		
+		outputFile.write("#---------- Chain Size Frequency ----------\n")
+		outputFile.write("#From frame {} to frame {}.\n".format(fromFrame, toFrame))
+		outputFile.write("#Chain Size | Number of Occurences\n")
+		
+		hbondChainSizes = {}
+		
+		for hbondChain in hbondChainsCount:
+			hbondChainSize = len(hbondChain)
+			
+			if hbondChainSize in hbondChainSizes:
+				hbondChainSizes[hbondChainSize] += hbondChainsCount[hbondChain]
+			else:
+				hbondChainSizes[hbondChainSize] = hbondChainsCount[hbondChain]
+			
+		
+		for hbondChainSize in hbondChainSizes:
+			outputFile.write("{} {}\n".format(hbondChainSize, hbondChainSizes[hbondChainSize]))
+		
+		outputFile.flush()
+	
 
 def isExactHBondPresent(hbondToCheck, hbondChain):
 	
@@ -352,7 +381,7 @@ def main():
 	
 	print("Using following input file:", inputFileName)
 	
-	atomsFileName, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, outputFileName, maxIntermoleculeDistance = loader.loadInput(inputFileName)
+	atomsFileName, atomsPerMolecule, fromFrame, toFrame, maxAngle, maxHBondDistance, maxBondDistance, hbondTypes, maxIntermoleculeDistance = loader.loadInput(inputFileName)
 	
 	startTime = time.time()
 	
@@ -365,20 +394,23 @@ def main():
 	
 	framesCount = len(frames)
 	
-	print("Loaded {} frames in {minuteMessage}{} seconds.".format(framesCount, secondsToLoadFrames, minuteMessage=(str(minutesToLoadFrames) + " minutes and ") if minutesToLoadFrames > 0 else ""))
+	print("Loaded {} frames in {minuteMessage}{:.2f} seconds.".format(framesCount, secondsToLoadFrames, minuteMessage=("{} minutes and ".format(minutesToLoadFrames)) if minutesToLoadFrames > 0 else ""))
 	
 	startTime = time.time()
 	
 	result = analyzeFrames(frames, np.radians(maxAngle), maxHBondDistance, maxBondDistance, maxIntermoleculeDistance)
 	
-	timeToCountHBonds = time.time() - startTime
+	# Extract directory from input file and use it to save output files. Doing it down here won't affect loading the input file.
+	os.chdir(inputFileName.rsplit('/', 1)[0])
 	
-	outputResult(result, framesCount, outputFileName, maxHBondDistance, maxAngle, hbondTypes, fromFrame, toFrame)
+	outputResult(result, framesCount, maxHBondDistance, maxAngle, hbondTypes, fromFrame, toFrame)
+	
+	timeToCountHBonds = time.time() - startTime
 	
 	minutesToCountHBonds = timeToCountHBonds // 60
 	secondsToCountHBonds = timeToCountHBonds % 60
 	
-	print("Took {minuteMessage}{} seconds to analyze {} frames; that's {} frames/second.".format(secondsToCountHBonds, framesCount, framesCount / timeToCountHBonds, minuteMessage=(str(minutesToCountHBonds) + " minutes and ") if minutesToCountHBonds > 0 else ""))
+	print("Took {minuteMessage}{:.2f} seconds to analyze {} frames; that's {:.2f} frames/second.".format(secondsToCountHBonds, framesCount, framesCount / timeToCountHBonds, minuteMessage=("{} minutes and ".format(minutesToCountHBonds)) if minutesToCountHBonds > 0 else ""))
 
 if __name__ == "__main__":
 	main()

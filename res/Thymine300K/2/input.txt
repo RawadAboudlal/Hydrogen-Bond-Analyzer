@@ -9,5 +9,4 @@ max h-bond distance = 3.0
 max bond distance = 1.6
 # Need to be in order: hydrogen index comes first then other atom.
 hbond types = [14-7, 13-7] [14-7, 13-8] [13-7, 13-7]
-output file = res/Thymine300K/2/output
 max intermolecule distance = 15
