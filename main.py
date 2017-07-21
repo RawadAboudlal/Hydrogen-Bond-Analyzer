@@ -197,23 +197,43 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 		
 		numberOfUniqueChains = len(hbondChainsCount)
 		
-		numberOfTotalChains = 0
-		
-		for hbondChain in hbondChainsCount:
-			numberOfTotalChains += hbondChainsCount[hbondChain]
-		
-		outputFile.write("Average chains length: {:.2f}\n".format(numberOfTotalChains / numberOfUniqueChains))	
-		
-		outputFile.write("\n---------- HBond Loops ----------\n")
-		
-		for frameIndex in connectedHBondComponents:
+		if numberOfUniqueChains != 0:
+			numberOfTotalChains = 0
 			
-			hbondChains = connectedHBondComponents[frameIndex]
+			for hbondChain in hbondChainsCount:
+				numberOfTotalChains += hbondChainsCount[hbondChain] * len(hbondChain)
 			
-			for hbondChain in hbondChains:
-				if hbondChain.isCyclic():
-					outputFile.write("There is a loop found at frame {} in the following chain: {}\n".format(frameIndex, hbondChain.graph.keys()))
+			outputFile.write("Average chains length: {:.2f}\n".format(numberOfTotalChains / numberOfUniqueChains))	
 			
+			outputFile.write("\n---------- HBond Loops ----------\n")
+			
+			hbondLoopsCount = {}
+			
+			for frameIndex in connectedHBondComponents:
+				
+				hbondChains = connectedHBondComponents[frameIndex]
+				
+				for hbondChain in hbondChains:
+					if hbondChain.isCyclic():
+						
+						hbondLoop = tuple(mol for mol in hbondChain.graph)
+						
+						if hbondLoop in hbondLoopsCount:
+							hbondLoopsCount[hbondLoop] += 1
+						else:
+							hbondLoopsCount[hbondLoop] = 1
+						
+		
+		numberOfUniqueLoops = len(hbondLoopsCount)
+		
+		if numberOfUniqueLoops != 0:
+			
+			numberOfTotalLoops = 0
+			
+			for hbondLoop in hbondLoopsCount:
+				numberOfTotalLoops += hbondLoopsCount[hbondLoop] * len(hbondLoop)
+			
+			outputFile.write("The average size of hbond loops is: {:.2f}\n".format(numberOfTotalLoops / numberOfUniqueLoops))
 		
 		totalHBondTypes = {}
 		

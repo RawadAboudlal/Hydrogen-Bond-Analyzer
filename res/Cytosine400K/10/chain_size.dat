@@ -1,12 +1,10 @@
 #---------- Chain Size Frequency ----------
-#From frame 1000 to frame 1499.
+#From frame 1000 to frame 1009.
 #Chain Size | Number of Occurences
-3 299
-2 651
-4 194
-5 54
-8 19
-7 24
-6 60
-10 13
-9 8
+3 5
+2 13
+4 4
+5 2
+8 1
+7 1
+6 1
