@@ -1,0 +1,36 @@
+From frame 1000 to frame 1499 (Total = 500)
+Configuration:
+	Max Hydrogen Bond Distance = 3.0, Max Hydrogen Bond Angle = 30.0
+
+---------- Average HBonds per Molecule ----------
+Molecule with id 0 has an average of 1.66 hydrogen bonds across the simulation.
+Molecule with id 1 has an average of 1.31 hydrogen bonds across the simulation.
+Molecule with id 2 has an average of 1.96 hydrogen bonds across the simulation.
+Molecule with id 3 has an average of 1.80 hydrogen bonds across the simulation.
+Molecule with id 4 has an average of 1.08 hydrogen bonds across the simulation.
+Molecule with id 5 has an average of 1.28 hydrogen bonds across the simulation.
+Molecule with id 6 has an average of 1.69 hydrogen bonds across the simulation.
+Molecule with id 7 has an average of 1.44 hydrogen bonds across the simulation.
+Molecule with id 8 has an average of 2.64 hydrogen bonds across the simulation.
+Molecule with id 9 has an average of 1.68 hydrogen bonds across the simulation.
+Molecule with id 10 has an average of 1.61 hydrogen bonds across the simulation.
+Molecule with id 11 has an average of 2.32 hydrogen bonds across the simulation.
+Molecule with id 12 has an average of 2.25 hydrogen bonds across the simulation.
+Molecule with id 13 has an average of 1.27 hydrogen bonds across the simulation.
+Molecule with id 14 has an average of 2.15 hydrogen bonds across the simulation.
+Molecule with id 15 has an average of 1.95 hydrogen bonds across the simulation.
+Molecule with id 16 has an average of 1.64 hydrogen bonds across the simulation.
+Molecule with id 17 has an average of 0.95 hydrogen bonds across the simulation.
+
+---------- HBond Chains ----------
+Average chains length: 16.51
+
+---------- HBond Loops ----------
+
+---------- Total Number of HBonds ----------
+HBond Type 1 was found 846 time(s).
+HBond Type 2 was found 354 time(s).
+HBond Type 3 was found 0 time(s).
+
+---------- Average Non-Hydrogen Bonding Molecules ----------
+There were on average 2.54 non-hydrogen bonding molecules over 500 frames.

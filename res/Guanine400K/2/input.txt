@@ -1,7 +1,7 @@
 atoms file = sim/Guanine400K/2/2guanine400K.xyz
 atoms per molecule = 16
 from frame = 2000
-to frame = 3000
+to frame = 2499
 max angle = 20.0
 max h-bond distance = 3.0
 # Maximum distance for two atoms to be bonded. When selecting 2 atoms, this will check if they are close enough to

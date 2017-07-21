@@ -1,0 +1,39 @@
+From frame 2000 to frame 2499 (Total = 500)
+Configuration:
+	Max Hydrogen Bond Distance = 3.0, Max Hydrogen Bond Angle = 30.0
+
+---------- Average HBonds per Molecule ----------
+Molecule with id 0 has an average of 3.15 hydrogen bonds across the simulation.
+Molecule with id 1 has an average of 4.05 hydrogen bonds across the simulation.
+Molecule with id 2 has an average of 2.11 hydrogen bonds across the simulation.
+Molecule with id 3 has an average of 2.74 hydrogen bonds across the simulation.
+Molecule with id 4 has an average of 1.60 hydrogen bonds across the simulation.
+Molecule with id 5 has an average of 0.37 hydrogen bonds across the simulation.
+Molecule with id 6 has an average of 2.27 hydrogen bonds across the simulation.
+Molecule with id 7 has an average of 0.61 hydrogen bonds across the simulation.
+Molecule with id 8 has an average of 1.94 hydrogen bonds across the simulation.
+Molecule with id 9 has an average of 1.43 hydrogen bonds across the simulation.
+Molecule with id 10 has an average of 3.48 hydrogen bonds across the simulation.
+Molecule with id 11 has an average of 2.14 hydrogen bonds across the simulation.
+Molecule with id 12 has an average of 1.56 hydrogen bonds across the simulation.
+Molecule with id 13 has an average of 1.07 hydrogen bonds across the simulation.
+Molecule with id 14 has an average of 2.86 hydrogen bonds across the simulation.
+Molecule with id 15 has an average of 3.38 hydrogen bonds across the simulation.
+
+---------- HBond Chains ----------
+Average chains length: 13.21
+
+---------- HBond Loops ----------
+
+---------- Total Number of HBonds ----------
+HBond Type 1 was found 323 time(s).
+HBond Type 2 was found 69 time(s).
+HBond Type 3 was found 161 time(s).
+HBond Type 4 was found 105 time(s).
+HBond Type 5 was found 0 time(s).
+HBond Type 6 was found 226 time(s).
+HBond Type 7 was found 0 time(s).
+HBond Type 8 was found 157 time(s).
+
+---------- Average Non-Hydrogen Bonding Molecules ----------
+There were on average 1.97 non-hydrogen bonding molecules over 500 frames.

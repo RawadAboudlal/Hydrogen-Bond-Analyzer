@@ -1,0 +1,28 @@
+From frame 2000 to frame 2499 (Total = 500)
+Configuration:
+	Max Hydrogen Bond Distance = 3.0, Max Hydrogen Bond Angle = 20.0
+
+---------- Average HBonds per Molecule ----------
+Molecule with id 0 has an average of 1.08 hydrogen bonds across the simulation.
+Molecule with id 1 has an average of 0.51 hydrogen bonds across the simulation.
+Molecule with id 2 has an average of 1.21 hydrogen bonds across the simulation.
+Molecule with id 3 has an average of 0.34 hydrogen bonds across the simulation.
+Molecule with id 4 has an average of 0.88 hydrogen bonds across the simulation.
+
+---------- HBond Chains ----------
+Average chains length: 67.50
+
+---------- HBond Loops ----------
+
+---------- Total Number of HBonds ----------
+HBond Type 1 was found 0 time(s).
+HBond Type 2 was found 24 time(s).
+HBond Type 3 was found 76 time(s).
+HBond Type 4 was found 0 time(s).
+HBond Type 5 was found 0 time(s).
+HBond Type 6 was found 0 time(s).
+HBond Type 7 was found 0 time(s).
+HBond Type 8 was found 0 time(s).
+
+---------- Average Non-Hydrogen Bonding Molecules ----------
+There were on average 2.03 non-hydrogen bonding molecules over 500 frames.

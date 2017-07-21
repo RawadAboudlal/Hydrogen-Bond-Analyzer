@@ -193,9 +193,10 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 				else:
 					hbondChainsCount[moleculesInChain] = 1
 		
-		numberOfUniqueChains = len(hbondChainsCount)
+		numberOfUniqueChains = sum(hbondChainsCount[moleculesInChain] for moleculesInChain in hbondChainsCount)
 		
 		if numberOfUniqueChains != 0:
+			
 			numberOfTotalChains = 0
 			
 			for hbondChain in hbondChainsCount:
@@ -222,7 +223,7 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 							hbondLoopsCount[hbondLoop] = 1
 						
 		
-		numberOfUniqueLoops = len(hbondLoopsCount)
+		numberOfUniqueLoops = sum(hbondLoopsCount[hbondLoop] for hbondLoop in hbondLoopsCount)
 		
 		if numberOfUniqueLoops != 0:
 			
@@ -263,7 +264,7 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 		for frameIndex in totalNonBondingMolecules:
 			nonBondingMoleculesCount[frameIndex] = len(totalNonBondingMolecules[frameIndex])
 		
-		outputFile.write("There were on average {:.2f} non-hydrogen bonding molecules over {} frames.".format(sum(nonBondingMoleculesCount[frameIndex] for frameIndex in nonBondingMoleculesCount) / framesCount, framesCount))
+		outputFile.write("Average of: {:.2f} non-hydrogen bonding molecules over {} frames.\n".format(sum(nonBondingMoleculesCount[frameIndex] for frameIndex in nonBondingMoleculesCount) / framesCount, framesCount))
 		
 		outputFile.flush()
 	
@@ -314,7 +315,11 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 				if not S_HB_index in S_HB_sum:
 					S_HB_sum[S_HB_index] = 0
 				
-				S_HB_sum[S_HB_index] += sum(H_of_t[hbondIndex] for hbondIndex in H_of_t) / h_of_0
+				try:
+					S_HB_sum[S_HB_index] += sum(H_of_t[hbondIndex] for hbondIndex in H_of_t) / h_of_0
+				except ZeroDivisionError:
+					# h_of_0 is 0 (no h-bonds in first frame) so S_HB_sum[S_HB_index] will just not be be incremented instead (causes non-1 starting value if this occurs.) 
+					pass
 		
 		for t in S_HB_sum:
 			# / segments to average out S_HB function over the given number of segments.

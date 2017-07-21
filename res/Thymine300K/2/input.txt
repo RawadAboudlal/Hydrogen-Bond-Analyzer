@@ -1,7 +1,7 @@
 atoms file = sim/Thymine300K/2/2thymine300K.xyz
 atoms per molecule = 15 # 1 thymine = 15 atoms.
 from frame = 1000
-to frame = 1500
+to frame = 1499
 max angle = 20.0
 max h-bond distance = 3.0
 # Maximum distance for two atoms to be bonded. When selecting 2 atoms, this will check if they are close enough to
