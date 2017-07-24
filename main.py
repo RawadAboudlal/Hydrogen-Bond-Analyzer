@@ -252,11 +252,15 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 				if not hbondTypeMatch == None:
 					totalHBondTypes[hbondTypeMatch.identifier] += 1
 		
-		outputFile.write("\n---------- Total Number of HBonds ----------\n")
+		totalHBondTypesCount = sum(totalHBondTypes[hbondType] for hbondType in totalHBondTypes)
 		
-		for hbondType in totalHBondTypes:
-			outputFile.write("HBond Type {} was found {} time(s).\n".format(hbondType, totalHBondTypes[hbondType]))
-		
+		if totalHBondTypesCount != 0:
+			
+			outputFile.write("\n---------- Hydrogen Bond Types ----------\n")
+			
+			for hbondType in totalHBondTypes:
+				outputFile.write("HBond Type {} has a probability of {:.2f}.\n".format(hbondType, totalHBondTypes[hbondType] / totalHBondTypesCount))
+			
 		outputFile.write("\n---------- Average Non-Hydrogen Bonding Molecules ----------\n")
 		
 		nonBondingMoleculesCount = {}
@@ -398,6 +402,22 @@ def isWithinDistance(pos1, pos2, maxDistance, La=np.array([34.60467452, 0, 0]), 
 	
 	return False, difference, np.linalg.norm(difference)
 
+def timeToString(time):
+	'''
+	Convertss time (in seconds) to an easy to ready string representation, with days being the highest value used (if 
+	present) then hours (if present) then minutes (if present) then seconds.
+	'''
+	
+	minutes, seconds = divmod(time, 60)
+	hours, minutes = divmod(minutes, 60)
+	days, hours = divmod(hours, 24)
+	
+	minutesMessageCount = 1 if minutes > 0 else 0
+	hoursMessageCount = 1 if hours > 0 else 0
+	daysMessageCount = 1 if days > 0 else 0
+	
+	return "{daysMessage}{hoursMessage}{minutesMessage}{secondsMessage:.2f} seconds".format(daysMessage = (str(days) + " day" + "s" * daysMessageCount) * daysMessageCount, hoursMessage = (str(hours) + " hour" + "s" * hoursMessageCount) * hoursMessageCount, minutesMessage = (str(minutes) + " minute" + "s" * minutesMessageCount) * minutesMessageCount, secondsMessage = seconds)
+
 def main():
 	
 	try:
@@ -417,12 +437,9 @@ def main():
 	
 	timeToLoadFrames = time.time() - startTime
 	
-	minutesToLoadFrames = timeToLoadFrames // 60
-	secondsToLoadFrames = timeToLoadFrames % 60
-	
 	framesCount = len(frames)
 	
-	print("Loaded {} frames in {minuteMessage}{:.2f} seconds.".format(framesCount, secondsToLoadFrames, minuteMessage=("{} minutes and ".format(minutesToLoadFrames)) if minutesToLoadFrames > 0 else ""))
+	print("Loaded {} frames in {time}.".format(framesCount, time = timeToString(timeToLoadFrames)))
 	
 	startTime = time.time()
 	
@@ -435,10 +452,7 @@ def main():
 	
 	timeToCountHBonds = time.time() - startTime
 	
-	minutesToCountHBonds = timeToCountHBonds // 60
-	secondsToCountHBonds = timeToCountHBonds % 60
-	
-	print("Took {minuteMessage}{:.2f} seconds to analyze {} frames; that's {:.2f} frames/second.".format(secondsToCountHBonds, framesCount, framesCount / timeToCountHBonds, minuteMessage=("{} minutes and ".format(minutesToCountHBonds)) if minutesToCountHBonds > 0 else ""))
+	print("Took {time} to analyze {} frames; that's {:.2f} frames/second.".format(framesCount, framesCount / timeToCountHBonds, time = timeToString(timeToCountHBonds)))
 
 if __name__ == "__main__":
 	main()

@@ -105,4 +105,4 @@ sim/
 
 # ODF Spreadsheet
 *.ods
-*.ods#
+*.~lock*
