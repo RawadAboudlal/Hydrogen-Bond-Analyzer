@@ -252,14 +252,18 @@ def outputResult(result, framesCount, maxDistance, maxAngle, hbondTypes, fromFra
 				if not hbondTypeMatch == None:
 					totalHBondTypes[hbondTypeMatch.identifier] += 1
 		
-		totalHBondTypesCount = sum(totalHBondTypes[hbondType] for hbondType in totalHBondTypes)
-		
-		if totalHBondTypesCount != 0:
+		if len(hbondTypes) > 1:
 			
 			outputFile.write("\n---------- Hydrogen Bond Types ----------\n")
 			
-			for hbondType in totalHBondTypes:
-				outputFile.write("HBond Type {} has a probability of {:.2f}.\n".format(hbondType, totalHBondTypes[hbondType] / totalHBondTypesCount))
+			firstHBondTypeCount = totalHBondTypes[1]
+			
+			if firstHBondTypeCount <= 0:
+				firstHBondTypeCount = 1
+			
+			for hbondTypeIndex in range(1, len(hbondTypes)):
+				hbondType = hbondTypes[hbondTypeIndex].identifier
+				outputFile.write("P({})/P(1) = {:.2f}.\n".format(hbondType, totalHBondTypes[hbondType] / firstHBondTypeCount))
 			
 		outputFile.write("\n---------- Average Non-Hydrogen Bonding Molecules ----------\n")
 		

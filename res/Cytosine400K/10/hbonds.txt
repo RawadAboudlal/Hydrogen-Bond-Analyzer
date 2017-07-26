@@ -20,9 +20,8 @@ Average chains length: 3.26
 ---------- HBond Loops ----------
 
 ---------- Hydrogen Bond Types ----------
-HBond Type 1 has a probability of 0.08.
-HBond Type 2 has a probability of 0.92.
-HBond Type 3 has a probability of 0.00.
+P(2)/P(1) = 12.00.
+P(3)/P(1) = 0.00.
 
 ---------- Average Non-Hydrogen Bonding Molecules ----------
 Average of: 1.20 non-hydrogen bonding molecules over 10 frames.
